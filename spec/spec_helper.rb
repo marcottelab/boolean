@@ -1,1 +1,1 @@
-require "./boolean.rb"
+require "./lib/boolean.rb"

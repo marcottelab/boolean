@@ -1,6 +1,4 @@
 require "nmatrix"
-require 'pry'
-require "./ortho_reader"
 
 class GPMatrix < NMatrix
   def initialize filename, species_id

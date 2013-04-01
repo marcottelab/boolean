@@ -1,5 +1,10 @@
 require 'rubygems'
 require 'bundler'
+require 'rake'
+require 'rspec/core/rake_task'
+require 'rspec/core'
+require 'rspec/core/rake_task'
+
 begin
   Bundler.setup(:default, :development)
 rescue Bundler::BundlerError => e
@@ -76,7 +81,7 @@ namespace :spec do
   #end
 
   desc "Run specs under GDB."
-  task :gdb => [ :compile ] do |task|
+  task :gdb do |task|
     cmd = [ 'gdb' ] + GDB_OPTIONS
     cmd += [ '--args' ]
     cmd += RSPEC_CMD
@@ -84,7 +89,7 @@ namespace :spec do
   end
 
   desc "Run specs under cgdb."
-  task :cgdb => [ :compile ] do |task|
+  task :cgdb do |task|
     cmd = [ 'cgdb' ] + GDB_OPTIONS
     cmd += [ '--args' ]
     cmd += RSPEC_CMD
@@ -92,7 +97,7 @@ namespace :spec do
   end
 
   desc "Run specs under Valgrind."
-  task :valgrind => [ :compile ] do |task|
+  task :valgrind do |task|
     cmd = [ 'valgrind' ] + VALGRIND_OPTIONS
     cmd += RSPEC_CMD
     run( *cmd )
