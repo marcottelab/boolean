@@ -10,6 +10,6 @@ class OPMatrix < NMatrix
   end
 
   def orthogroups_for_phenotype i
-    self.row(i, :copy).to_h[0].keys
+    self.row(i, :copy).cast(:list, :byte).to_h[0].keys
   end
 end

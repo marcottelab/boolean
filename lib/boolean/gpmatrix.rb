@@ -5,7 +5,6 @@ class GPMatrix < NMatrix
     @genes      = {}
     @phenotypes = {}
     @species_id = species_id
-    @opmatrices = {} # Orthogroup-Phenotype matrices by species
 
     associations = Hash.new { |h,k| h[k] = [] }
     association_count = 0
@@ -56,24 +55,21 @@ class GPMatrix < NMatrix
   end
 
 
-  def opmatrix reader, species_id
-    @opmatrices[species_id] ||= begin
-      binding.pry
-      opm = OPMatrix.new(@phenotype_count, reader.orthogroup_count, self.capacity)
+  def opmatrix reader
+    opm = OPMatrix.new(@phenotype_count, reader.orthogroup_count, self.capacity)
 
-      # genes maps actual gene IDs to assigned gene IDs. Need to be able to get back the actual gene ID.
-      inverted_genes = @genes.invert
+    # genes maps actual gene IDs to assigned gene IDs. Need to be able to get back the actual gene ID.
+    inverted_genes = @genes.invert
 
-      # Walk through the non-zero entries (and technically also the diagonals)
-      self.each_stored_with_indices do |val,pid,gid|
-        next if val == 0
-        orthogroup_id = reader.orthogroup_id( inverted_genes[gid] )  # returns the renumbered orthogroup ID
-        next if orthogroup_id.nil? # many genes won't exist in other species; skip these.
-        opm[pid, orthogroup_id] = val
-      end
-
-      opm
+    # Walk through the non-zero entries (and technically also the diagonals)
+    self.each_stored_with_indices do |val,pid,gid|
+      next if val == 0
+      orthogroup_id = reader.orthogroup_id( inverted_genes[gid] )  # returns the renumbered orthogroup ID
+      next if orthogroup_id.nil? # many genes won't exist in other species; skip these.
+      opm[pid, orthogroup_id] = val
     end
+
+    opm
   end
 
   def associated? gene, phenotype

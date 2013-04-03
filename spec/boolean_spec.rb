@@ -10,10 +10,18 @@ describe :boolean do
     Boolean.gp_matrix("phenotypes.2.mcgary", "Hs")
   end
 
-  it "should generate an orthogroup-phenotype matrix (OPMatrix) from a gene-phenotype matrix" do
+  it "should generate two comparable orthogroup-phenotype matrices (OPMatrix) from two gene-phenotype matrices" do
     reader = Boolean.reader(%w{Hs Mm})
-    gpm    = Boolean.gp_matrix("phenotypes.2.mcgary", "Hs")
-    opm    = gpm.opmatrix(reader, "Mm")
+
+    hs_gpm = Boolean.gp_matrix("phenotypes.2.mcgary", "Hs")
+    hs_opm = hs_gpm.opmatrix(reader) # human orthogroup-phenotype matrix
+
+    mm_gpm = Boolean.gp_matrix("phenotypes.2.mcgary", "Mm")
+    mm_opm = mm_gpm.opmatrix(reader) # mouse orthogroup-phenotype matrix
+
+    hs_opm.shape[1].should == mm_opm.shape[1]
   end
+
+
 
 end
