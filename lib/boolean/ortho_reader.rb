@@ -1,6 +1,6 @@
 class OrthoReader
 
-  attr_reader :g_to_o, :r_to_g, :renumber
+  attr_reader :g_to_o, :r_to_g, :renumber, :orthogroup_count
 
 
   def orthogroup_id gid
@@ -46,6 +46,7 @@ class OrthoReader
         @g_to_o[gene] = orthogroup_id
         o_to_g[orthogroup_id] << gene unless o_to_g[orthogroup_id].include?(gene)
         @r_to_g[@renumber[orthogroup_id]] << gene unless @r_to_g[@renumber[orthogroup_id]].include?(gene)
+        @orthogroup_count = count
       end
 
       f.close

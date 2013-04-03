@@ -34,17 +34,17 @@ GDB_OPTIONS = []
 RSpec::Core::RakeTask.new(:spec)
 
 task :console do |task|
-  cmd = [ 'irb', "-r './lib/nmatrix.rb'" ]
+  cmd = [ 'irb', "-r './lib/boolean.rb'" ]
   run *cmd
 end
 
 task :pry do |task|
-  cmd = [ 'pry', "-r './lib/nmatrix.rb'" ]
+  cmd = [ 'pry', "-r './lib/boolean.rb'" ]
   run *cmd
 end
 
 #namespace :console do
-#  CONSOLE_CMD = ['irb', "-r './lib/nmatrix.rb'"]
+#  CONSOLE_CMD = ['irb', "-r './lib/boolean.rb'"]
 #  desc "Run console under GDB."
 #  task :gdb => [ :compile ] do |task|
 #          cmd = [ 'gdb' ] + GDB_OPTIONS

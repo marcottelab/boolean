@@ -1,4 +1,5 @@
 require File.join(File.dirname(__FILE__), "spec_helper.rb")
+require 'pry'
 
 describe :boolean do
   it "should generate an OrthoReader" do
@@ -13,14 +14,6 @@ describe :boolean do
     reader = Boolean.reader(%w{Hs Mm})
     gpm    = Boolean.gp_matrix("phenotypes.2.mcgary", "Hs")
     opm    = gpm.opmatrix(reader, "Mm")
-  end
-
-  it "should not segfault when getting a phenotype row" do
-    reader = Boolean.reader(%w{Hs Mm})
-    gpm    = Boolean.gp_matrix("phenotypes.2.mcgary", "Hs")
-    opm    = gpm.opmatrix(reader, "Mm")
-    p0     = opm.row(0)
-    p0.pretty_print
   end
 
 end

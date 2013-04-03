@@ -7,10 +7,11 @@ class GPMatrix < NMatrix
     @species_id = species_id
     @opmatrices = {} # Orthogroup-Phenotype matrices by species
 
-    associations = {}
+    associations = Hash.new { |h,k| h[k] = [] }
+    association_count = 0
 
     gene_count = 0
-    phenotype_count = 0
+    @phenotype_count = 0
 
     f = File.new(filename, 'r')
     while line = f.gets
@@ -28,35 +29,44 @@ class GPMatrix < NMatrix
 
       # Number the phenotypes.
       @phenotypes[phenotype] ||= begin
-        x = phenotype_count
-        phenotype_count += 1
+        x = @phenotype_count
+        @phenotype_count += 1
         x
       end
 
       # Map the assigned gene ID to the assigned phenotype ID
-      associations[@genes[gene]] = @phenotypes[phenotype]
+      associations[@genes[gene]] << @phenotypes[phenotype]
+      association_count += 1
     end
 
     # Call the actual matrix creation constructor with the appropriate size
-    super(:yale, [phenotype_count, gene_count], associations.size, :byte)
+    super(:yale, [@phenotype_count, gene_count], association_count + @phenotype_count, :byte)
 
     # Add the associations
-    associations.each_pair do |j, i|
-      self[i,j] = 1
+    associations.each_pair do |j, i_array|
+      i_array.each do |i|
+        self[i,j] = 1
+      end
+    end
+
+    require 'yaml'
+    File.open( 'associations.yaml', 'w' ) do |out|
+      YAML.dump(associations, out)
     end
   end
 
 
   def opmatrix reader, species_id
     @opmatrices[species_id] ||= begin
-
-      opm = OPMatrix.new(@phenotypes.keys.size, reader.r_to_g.keys.size,    self.capacity)
+      binding.pry
+      opm = OPMatrix.new(@phenotype_count, reader.orthogroup_count, self.capacity)
 
       # genes maps actual gene IDs to assigned gene IDs. Need to be able to get back the actual gene ID.
       inverted_genes = @genes.invert
 
       # Walk through the non-zero entries (and technically also the diagonals)
       self.each_stored_with_indices do |val,pid,gid|
+        next if val == 0
         orthogroup_id = reader.orthogroup_id( inverted_genes[gid] )  # returns the renumbered orthogroup ID
         next if orthogroup_id.nil? # many genes won't exist in other species; skip these.
         opm[pid, orthogroup_id] = val

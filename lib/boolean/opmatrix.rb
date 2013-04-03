@@ -8,4 +8,8 @@ class OPMatrix < NMatrix
   def associated? orthogroup_id, phenotype_id
     self[phenotype_id] == orthogroup_id
   end
+
+  def orthogroups_for_phenotype i
+    self.row(i, :copy).to_h[0].keys
+  end
 end

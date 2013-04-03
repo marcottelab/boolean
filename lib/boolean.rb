@@ -1,6 +1,6 @@
-require "boolean/gpmatrix.rb"
-require "boolean/opmatrix.rb"
-require "boolean/ortho_reader.rb"
+require_relative "boolean/gpmatrix.rb"
+require_relative "boolean/opmatrix.rb"
+require_relative "boolean/ortho_reader.rb"
 
 module Boolean
   class << self
