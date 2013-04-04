@@ -1,4 +1,5 @@
 require "./lib/boolean.rb"
+# require "gsl"
 require "distribution"
 
 reader = Boolean.reader(%w{Hs Mm})

@@ -1,17 +1,23 @@
+# Orthogroup Reader
+#
+# This class parses the sqltable file (INPARANOID output) for a given species pair. It is needed for converting a
+# gene-phenotype matrix (GPMatrix) to an orthogroup-phenotype matrix (OPMatrix).
 class OrthoReader
 
   attr_reader :g_to_o, :r_to_g, :renumber, :orthogroup_count
 
-
+  # Convert a (renumbered) gene ID (a GPMatrix index) to our renumbered orthogroup ID (an OPMatrix index)
   def orthogroup_id gid
     @renumber[@g_to_o[gid]]
   end
 
+  # Convert a renumbered orthogroup ID (OPMatrix index) to a renumbered gene ID (GPMatrix index).
   def gene_id rid
     @r_to_g[rid]
   end
 
-
+  # Create an OrthoReader for a pair of species (given by +species_ids+). Optionally, can supply the data directory as
+  # second argument, which defaults to "data"
   def initialize species_ids, dir="data"
     @renumber = {} # map INPARANOID orthogroup IDs to renumbered oids
 

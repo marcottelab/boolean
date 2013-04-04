@@ -1,5 +1,12 @@
 require "nmatrix"
 
+
+# A Gene-Phenotype matrix.
+#
+# Note that this version differs from that described in McGary et al., 2010, and Woods et al., 2013. Namely, the rows
+# and columns are swapped, as NMatrix's yale storage type is more efficient at extracting rows than columns. Since we're
+# comparing phenotypes between species, we want to be able to quickly extract those -- which means we need efficient
+# access to rows.
 class GPMatrix < NMatrix
   def initialize filename, species_id
     @genes      = {}
