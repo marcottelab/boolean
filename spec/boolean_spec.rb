@@ -22,6 +22,13 @@ describe :boolean do
     hs_opm.shape[1].should == mm_opm.shape[1]
   end
 
+  it "should generate a boolean orthogroup-phenotype matrix from a regular orthogroup-phenotype matrix" do
+    reader = Boolean.reader(%w{Hs Mm})
 
+    mm_gpm = Boolean.gp_matrix("phenotypes.2.mcgary", "Mm")
+    mm_opm = mm_gpm.opmatrix(reader) # mouse orthogroup-phenotype matrix
+
+    mm_bopm = Boolean::BOPMatrix.new(mm_opm, :|)
+  end
 
 end
