@@ -8,7 +8,8 @@ module Boolean
     # Create a new OPMatrix. The three arguments are the number of consecutive phenotype IDs, the number of consecutive
     # orthogroup IDs, and the initial storage capacity.
     def initialize phenotype_count, orthogroup_count, storage_count
-      super(:yale, [phenotype_count, orthogroup_count], storage_count, :byte)
+      # Make sure to provide storage_count + phenotype_count as the initial capacity, since otherwise a resize will be needed.
+      super(:yale, [phenotype_count, orthogroup_count], storage_count+phenotype_count+1, :byte)
 
       @sets = {}
     end
