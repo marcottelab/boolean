@@ -1,7 +1,10 @@
+require "benchmark"
+
 require_relative "boolean/gpmatrix.rb"
 require_relative "boolean/opmatrix.rb"
 require_relative "boolean/bopmatrix.rb"
 require_relative "boolean/ortho_reader.rb"
+require_relative "boolean/dmatrix.rb"
 
 module Boolean
   class << self
@@ -14,6 +17,14 @@ module Boolean
 
     def gp_matrix basename="phenotypes.2.mcgary", species
       GPMatrix.new "data/#{basename}.#{species}", species
+    end
+
+    def say_with_time msg
+      puts msg
+      result = nil
+      time = Benchmark.measure { result = yield }
+      puts "%.4fs" % time.real
+      result
     end
 
     #opm = gpm.opmatrix reader, "Mm"

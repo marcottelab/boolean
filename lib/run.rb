@@ -12,15 +12,6 @@ dr_opm = dr_gpm.opmatrix(reader) # zebrafish orthogroup-phenotype matrix
 
 dr_bopm = Boolean::BOPMatrix.new(dr_opm, :|)
 
-# Initialize dense matrix to 0.0, float64
-distances = NMatrix.new([hs_opm.shape[0],dr_bopm.shape[0]], 0.0, :float64)
+# Create dense matrix, don't initialize values by offering a default -- we're going to do so momentarily.
+distances = DMatrix.new(hs_opm, dr_bopm)
 
-(0...hs_opm.shape[0]).each do |i|
-  m_set = hs_opm.orthogroups_for_phenotype(i)
-  STDERR.puts "i=#{i}"
-  (0...dr_bopm.shape[0]).each do |j|
-    n_set = mm_opm.orthogroups_for_phenotype(j)
-    k_set = m_set & n_set
-    distances[i,j] = Distribution::Hypergeometric.cdf(k_set.size, m_set.size, n_set.size, hs_opm.shape[1])
-  end
-end
