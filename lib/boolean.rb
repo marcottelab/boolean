@@ -6,6 +6,7 @@ require_relative "boolean/bopmatrix.rb"
 require_relative "boolean/ortho_reader.rb"
 require_relative "boolean/dmatrix.rb"
 
+
 module Boolean
   class << self
     # Loads the sqltable file for a given species pair and assigns numbers which will be used as indices
