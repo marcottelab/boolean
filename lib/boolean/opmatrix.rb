@@ -30,21 +30,41 @@ module Boolean
       super(:yale, [phenotype_count, orthogroup_count], storage_count+phenotype_count+1, :byte)
     end
 
-    def clone_structure
-      self.class.new(self.shape[0], self.shape[1], self.capacity-self.shape[0]-1)
-    end
-
     # Basically the same as doing self[p,o] == 1
     def associated? orthogroup_id, phenotype_id
       self[phenotype_id, orthogroup_id] == 1
     end
 
-    # Make a copy of the matrix with the row contents shuffled.
+    # Make a copy of the matrix with the contents of each row non-independently shuffled.
     def shuffle_rows
-      t = clone_structure   # Start with the constructor for OPMatrix
+      t = clone_structure
 
-      # Get the ija pointer and the diagonal contents. We'll use these to figure out the size of each row.
-      STDERR.puts "shuffle_rows"
+      ary = (0...self.shape[1]).to_a.shuffle
+
+      (0...self.shape[0]).each do |i|
+        column_indices = t.yale_row_as_array(i)
+
+        diag = 0
+
+        shuffled_indices = SortedSet.new()
+        column_indices.each do |j|
+          if ary[j] == i
+            diag = 1
+          else
+            shuffled_indices << ary[j]
+          end
+        end
+
+        t[i,i] = diag
+        t.yale_vector_insert(i, shuffled_indices.to_a, [1]*shuffled_indices.size)
+      end
+
+      return t
+    end
+
+    # Make a copy of the matrix with the contents of each row independently shuffled.
+    def shuffle_each_row
+      t = clone_structure   # Start with the constructor for OPMatrix
 
       # Create an array we can use for shuffling
       ary = (0...self.shape[1]).to_a
@@ -69,5 +89,11 @@ module Boolean
     # Gives the set of orthogroup indices for some phenotype index (index means internal/renumbered, not the ID from
     # data files).
     alias_method :orthogroups_for_phenotype, :yale_row_as_array #:yale_row_as_sorted_set
+
+  protected
+
+    def clone_structure
+      self.class.new(self.shape[0], self.shape[1], self.capacity-self.shape[0]-1)
+    end
   end
 end

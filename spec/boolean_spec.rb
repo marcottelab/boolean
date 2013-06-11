@@ -29,11 +29,21 @@ describe :boolean do
     dr_gpm = Boolean.gp_matrix("phenotypes.2.woods", "Dr")
     dr_opm = dr_gpm.opmatrix(reader) # zebrafish orthogroup-phenotype matrix
 
-    dr_bopm = Boolean::BOPMatrix.new(dr_opm, :|)
-    shuffled= dr_bopm.shuffle_rows
+    #dr_bopm = Boolean::BOPMatrix.new(dr_opm, :|)
+    # Test non-independent shuffling
+    shuffled= dr_opm.shuffle_rows
 
-    (0...dr_bopm.shape[0]).each do |i|
-      a = dr_bopm.yale_row_as_array(i)
+    (0...dr_opm.shape[0]).each do |i|
+      a = dr_opm.yale_row_as_array(i)
+      b = shuffled.yale_row_as_array(i)
+      a.size.should equal(b.size)
+    end
+
+    # Test independent shuffling
+    shuffled= dr_opm.shuffle_each_row
+
+    (0...dr_opm.shape[0]).each do |i|
+      a = dr_opm.yale_row_as_array(i)
       b = shuffled.yale_row_as_array(i)
       a.size.should equal(b.size)
     end
