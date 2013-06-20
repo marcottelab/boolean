@@ -1,2 +1,2 @@
-# require "./lib/boolean.rb"
-require "nmatrix"
+require "./lib/boolean.rb"
+#require "nmatrix"

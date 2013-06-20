@@ -59,9 +59,6 @@ module Boolean
             random      = DMatrix.new(to, random_from)
             random.write("random.#{n}")
           end
-
-          # Clean up
-          GC.start
         end
       end
 
