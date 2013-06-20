@@ -17,10 +17,14 @@ BASEDIR = Pathname( __FILE__ ).dirname.relative_path_from( Pathname.pwd )
 SPECDIR = BASEDIR + 'spec'
 
 VALGRIND_OPTIONS = [
-        "--num-callers=50",
+        "--tool=memcheck",
+        "--leak-check=full",
+        "--num-callers=15",
         "--error-limit=no",
-        "--partial-loads-ok=yes",
-        "--undef-value-errors=no",
+        #"--partial-loads-ok=yes",
+        #"--undef-value-errors=no",
+        "--track-origins=yes"#,
+        #"--track-fds=yes"
 ]
 VALGRIND_MEMORYFILL_OPTIONS = [
         "--freelist-vol=100000000",
