@@ -14,7 +14,8 @@ module Boolean
         (0...from.shape[0]).each do |j|
           n_set = from.orthogroups_for_phenotype(j)
           k_set = m_set & n_set
-          self[i,j] = 1.0 - Distribution::Hypergeometric.cdf(k_set.size, m_set.size, n_set.size, to.shape[1])
+          #self[i,j] = 1.0 - Distribution::Hypergeometric.cdf(k_set.size-1, m_set.size, n_set.size, to.shape[1])
+          self[i,j] = Hypergeometric.cdf(k_set.size, m_set.size, n_set.size, to.shape[1])
         end
       end
     end

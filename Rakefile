@@ -13,6 +13,18 @@ rescue Bundler::BundlerError => e
   exit e.status_code
 end
 
+gemspec = eval(IO.read("boolean.gemspec"))
+
+require 'rake'
+require "rake/extensiontask"
+Rake::ExtensionTask.new do |ext|
+    ext.name = 'hypergeometric'
+    ext.ext_dir = 'ext/hypergeometric'
+    ext.lib_dir = 'lib/'
+    ext.source_pattern = "**/*.{c,cpp, h}"
+end
+
+
 BASEDIR = Pathname( __FILE__ ).dirname.relative_path_from( Pathname.pwd )
 SPECDIR = BASEDIR + 'spec'
 

@@ -6,6 +6,7 @@ require_relative "boolean/opmatrix.rb"
 require_relative "boolean/bopmatrix.rb"
 require_relative "boolean/ortho_reader.rb"
 require_relative "boolean/dmatrix.rb"
+require_relative "hypergeometric.rb"
 
 class Hash
   # File activesupport/lib/active_support/core_ext/hash/reverse_merge.rb, line 17
@@ -18,6 +19,7 @@ end
 
 module Boolean
   class << self
+
     # Loads the sqltable file for a given species pair and assigns numbers which will be used as indices
     # for the matrices.
     def reader species=%w{Hs Mm}
@@ -81,7 +83,7 @@ module Boolean
           STDERR.puts "\tUpdating counts..."
           (0...counts.shape[0]).each do |to_phi|
             (0...counts.shape[1]).each do |from_phi|
-              counts[to_phi,from_phi] += 1 if random[to_phi,from_phi] >= real[to_phi,from_phi]
+              counts[to_phi,from_phi] += 1 if random[to_phi,from_phi] <= real[to_phi,from_phi]
             end
           end
         end
