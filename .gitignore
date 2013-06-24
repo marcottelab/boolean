@@ -1,4 +1,10 @@
 data/
+tmp/
 .idea
 Gemfile.lock
 random.*
+associations.yaml
+lib/hypergeometric.so
+lib/hypergeometric.bundle
+mkmf.log
+*.out
