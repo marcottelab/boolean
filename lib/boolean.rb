@@ -1,5 +1,6 @@
 require "benchmark"
 require "distribution"
+require "rbtree" # Use as an ordered hash
 
 require_relative "boolean/gpmatrix.rb"
 require_relative "boolean/opmatrix.rb"
@@ -33,8 +34,9 @@ module Boolean
 
     def permutation_test(opts = {})
       opts.reverse_merge!({
-        :n => 1000,
-        :with => :shuffle_rows,
+        :start => 0,
+        :end => 1000,
+        :with => :shuffle_each_row, # or :shuffle_rows (doesn't seem to work right)
         :from => ["phenotypes.2.woods", "Dr"],
         :to => ["phenotypes.2.mcgary", "Hs"],
         :op => nil
@@ -49,17 +51,20 @@ module Boolean
       from_gpm = gp_matrix(*opts[:from])
       from_opm = from_gpm.opmatrix(reader)
 
-      from = opts[:op].nil? ? from_opm : BOPMatrix.new(from_opm, opts[:op])
+      from     = opts[:op].nil? ? from_opm : BOPMatrix.new(from_opm, opts[:op])
 
-      real = DMatrix.new(to, from)
+      real     = DMatrix.new(to, from)
       real.write("real")
 
-      say_with_time "Permuting #{opts[:n]} times" do
-        (0...opts[:n]).each do |n|
-          say_with_time "(#{n}/#{opts[:n]})" do
+      start_i  = opts[:start]
+      end_i    = opts[:end]
+
+      say_with_time "Permuting #{opts[:end]} times" do
+        (start_i...end_i).each do |i|
+          say_with_time "(#{i}/#{end_i-start_i})" do
             random_from = from.send(opts[:with])
             random      = DMatrix.new(to, random_from)
-            random.write("random.#{n}")
+            random.write("random.#{i}")
           end
         end
       end
@@ -70,30 +75,36 @@ module Boolean
     # Analyze the results of a permutation test. Only argument is +n+, the number of randomizations.
     # Writes to a matrix file called "counts". Returns the real matrix and the counts together.
     def analyze_permutation_test(n)
-      real = say_with_time "Reading 'real' matrix" do
+      real_matrix = say_with_time "Reading 'real' matrix" do
         DMatrix.read("real") # rows:to; columns:from
       end
 
-      counts = NMatrix.new(:dense, [real.shape[0], real.shape[1]], 0, :int16)
+      # Track the distributions by p-value
+      real_dist   = RBTree.new   { |h,k| h[k] = 0 }
+      random_dist = RBTree.new   { |h,k| h[k] = 0 }
+
+      real_matrix.each do |v|
+        real_dist[v]  += 1
+      end
+
+      #counts = NMatrix.new(:dense, [real.shape[0], real.shape[1]], 0, :int16)
 
       (0...n).each do |t|
         say_with_time "Analyzing (#{t}/#{n})" do
           STDERR.puts "\tReading 'random' matrix"
-          random = DMatrix.read("random.#{t}")
+          random_matrix = DMatrix.read("random.#{t}")
           STDERR.puts "\tUpdating counts..."
-          (0...counts.shape[0]).each do |to_phi|
-            (0...counts.shape[1]).each do |from_phi|
-              counts[to_phi,from_phi] += 1 if random[to_phi,from_phi] <= real[to_phi,from_phi]
+          (0...real_matrix.shape[0]).each do |to_phi|
+            (0...real_matrix.shape[1]).each do |from_phi|
+
+              random_dist[ random_matrix[to_phi,from_phi] ] += 1
+
             end
           end
         end
       end
 
-      say_with_time "Writing 'counts' matrix" do
-        counts.write("counts")
-      end
-
-      [real, counts]
+      [real_dist, random_dist]
     end
 
     def say_with_time msg

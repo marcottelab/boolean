@@ -10,4 +10,5 @@ gem "rake"
 gem "rake-compiler"
 gem "statsample"
 gem "ruby-progressbar"
+gem "rbtree"
 
