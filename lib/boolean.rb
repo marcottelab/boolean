@@ -61,7 +61,7 @@ module Boolean
 
       say_with_time "Permuting #{opts[:end]} times" do
         (start_i...end_i).each do |i|
-          say_with_time "(#{i}/#{end_i-start_i})" do
+          say_with_time "(#{i}/#{end_i})" do
             random_from = from.send(opts[:with])
             random      = DMatrix.new(to, random_from)
             random.write("random.#{i}")
