@@ -1,6 +1,7 @@
 require "benchmark"
 require "distribution"
 require "rbtree" # Use as an ordered hash
+require 'yaml'
 
 require_relative "boolean/gpmatrix.rb"
 require_relative "boolean/opmatrix.rb"
@@ -14,6 +15,26 @@ class Hash
   def reverse_merge!(other_hash)
     # right wins if there is no left
     merge!( other_hash ){|key,left,right| left }
+  end
+end
+
+# Modified from: http://markmail.org/message/ntlhxtacsqjh7rd4 (thanks to Why the lucky stiff!)
+# Ended up just basing it mostly on Hash though.
+class RBTree
+  YAML.add_ruby_type 'rbtree' do |type,val|
+    r = RBTree.new
+    val.each { |k,v| r[k] = v }
+    r
+  end
+
+  def to_yaml( opts = {} )
+    YAML::quick_emit( self, opts ) do |out|
+      out.map( taguri, to_yaml_style ) do |map|
+        each do |k,v|
+          map.add( k, v)
+        end
+      end
+    end
   end
 end
 
@@ -102,6 +123,11 @@ module Boolean
             end
           end
         end
+      end
+
+      say_with_time "Writing distributions to files" do
+        File.write('real.dist.yml', real_dist.to_yaml)
+        File.write('random.dist.yml', random_dist.to_yaml)
       end
 
       [real_dist, random_dist]

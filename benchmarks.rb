@@ -21,6 +21,17 @@ Benchmark.bm(10) do |testcase|
   testcase.report('SortedSet2present'){ n.times{ ar1.any?{ |element| sset2.include? element } } }
 end
 
+=begin  # Same with or without rbtree, roughly
+                 user     system      total        real
+Array        0.710000   0.020000   0.730000 (  0.727614)
+Set          0.830000   0.010000   0.840000 (  0.844341)
+SortedSet    2.110000   0.010000   2.120000 (  2.125546)
+Set2         0.390000   0.000000   0.390000 (  0.399684)
+Set2present  0.220000   0.000000   0.220000 (  0.213202)
+SortedSet2   0.900000   0.000000   0.900000 (  0.907959)
+SortedSet2present  0.440000   0.000000   0.440000 (  0.444069)
+=end
+
 
 require './lib/hypergeometric'
 
