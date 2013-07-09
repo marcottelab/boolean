@@ -8,6 +8,7 @@ require_relative "boolean/opmatrix.rb"
 require_relative "boolean/bopmatrix.rb"
 require_relative "boolean/ortho_reader.rb"
 require_relative "boolean/dmatrix.rb"
+require_relative "boolean/plot.rb"
 require_relative "hypergeometric.rb"
 
 class Hash
@@ -21,7 +22,7 @@ end
 # Modified from: http://markmail.org/message/ntlhxtacsqjh7rd4 (thanks to Why the lucky stiff!)
 # Ended up just basing it mostly on Hash though.
 class RBTree
-  YAML.add_ruby_type 'rbtree' do |type,val|
+  YAML.add_ruby_type /RBTree/ do |type,val|
     r = RBTree.new
     val.each { |k,v| r[k] = v }
     r
@@ -31,7 +32,7 @@ class RBTree
     YAML::quick_emit( self, opts ) do |out|
       out.map( taguri, to_yaml_style ) do |map|
         each do |k,v|
-          map.add( k, v)
+          map.add(k.to_s, v)
         end
       end
     end
@@ -126,11 +127,28 @@ module Boolean
       end
 
       say_with_time "Writing distributions to files" do
-        File.write('real.dist.yml', real_dist.to_yaml)
-        File.write('random.dist.yml', random_dist.to_yaml)
+        File.write('real.dist.yml', real_dist)
+        File.write('random.dist.yml', random_dist)
       end
 
       [real_dist, random_dist]
+    end
+
+    def load_permutation_test
+      [YAML::load(File.read('real.dist.yml')),
+       YAML::load(File.read('random.dist.yml'))]
+    end
+
+    def plot_permutation_test(n)
+
+      real, ran = analyze_permutation_test(n)
+      return Boolean::Plot.fig_2b(real, ran)
+
+      [real, ran]
+      #r = Simpler.new
+      #r.pdf_viewer = "/Applications/Preview.app/Contents/MacOS/Preview"
+      #r.eval! { "plot(" }
+
     end
 
     def say_with_time msg
