@@ -58,7 +58,7 @@ module Boolean
       opts.reverse_merge!({
         :start => 0,
         :end => 1000,
-        :with => :shuffle_each_row, # or :shuffle_rows (doesn't seem to work right)
+        :with => :shuffle_each_row, # or :shuffle_rows
         :from => ["phenotypes.2.woods", "Dr"],
         :to => ["phenotypes.2.mcgary", "Hs"],
         :op => nil
@@ -102,7 +102,8 @@ module Boolean
     def analyze_permutation_test(n)
       real_matrix = say_with_time "Reading 'real' matrix" do
         #`gunzip -c real.gz > real`
-        DMatrix.read("real") # rows:to; columns:from
+        x = DMatrix.read("real") # rows:to; columns:from
+        x
         #`rm real`
       end
 
@@ -110,9 +111,12 @@ module Boolean
       real_dist   = RBTree.new   { |h,k| h[k] = 0 }
       random_dist = RBTree.new   { |h,k| h[k] = 0 }
 
-      real_matrix.each do |v|
+      real_matrix.each_stored_with_indices do |v,i,j|
         real_dist[v]  += 1
       end
+
+      # Remove skipped values from the distribution.
+      real_dist.delete(Float::INFINITY)
 
       #counts = NMatrix.new(:dense, [real.shape[0], real.shape[1]], 0, :int16)
 
@@ -121,12 +125,8 @@ module Boolean
           STDERR.puts "\tReading 'random' matrix"
           random_matrix = DMatrix.read("random.#{t}")
           STDERR.puts "\tUpdating counts..."
-          (0...real_matrix.shape[0]).each do |to_phi|
-            (0...real_matrix.shape[1]).each do |from_phi|
-
-              random_dist[ random_matrix[to_phi,from_phi] ] += 1
-
-            end
+          random_matrix.each do |v|
+            random_dist[v] += 1
           end
         end
       end

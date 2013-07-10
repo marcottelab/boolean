@@ -76,6 +76,8 @@ module Boolean
         opm[pid, orthogroup_id] = val
       end
 
+      opm.setup_skip_table!
+
       opm
     end
 

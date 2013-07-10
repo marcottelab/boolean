@@ -4,7 +4,9 @@ require 'rubyvis'
 
 class Float
   def exponent
-    self.to_s.split("e")[1].to_i
+    return nil if self == Float::INFINITY || self == -Float::INFINITY
+    return 0 if self == 0
+    Math.log10(self).floor
   end
 end
 
@@ -36,10 +38,11 @@ module Boolean
 
       def fig_2b(real, ran)
         min_exp = [real.keys.min.exponent, ran.keys.min.exponent].min
+        binding.pry
         real_bins = rebin_by_exponent(min_exp.abs, real)
         ran_bins  = rebin_by_exponent(min_exp.abs, ran)
-        #binding.pry
-        #binding.pry
+        binding.pry
+
         #real_denom = 0
         #real_ary = real.keys
         #real.each_pair { |k,v| real_denom += v }
@@ -108,7 +111,7 @@ module Boolean
           f.write(vis.to_svg)
         end
 
-        real_bins
+        [real_bins, ran_bins]
       end
     end
   end

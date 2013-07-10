@@ -34,6 +34,8 @@ module Boolean
         count = 0
         matrix_size = 0
 
+        skippable_rows = opmatrix.skippable_rows
+
         comb = Boolean.say_with_time("generating numeric combinations") do
           (0...opmatrix.shape[0]).to_a.combination(2)
         end
@@ -45,6 +47,8 @@ module Boolean
 
           # Generate ID combinations of all phenotypes
           comb.each do |pair|
+            next if skippable_rows.include?(pair[0]) || skippable_rows.include?(pair[1])
+
             @decipher[count] ||= []
             left        = opmatrix.orthogroups_for_phenotype(pair[0])
             right       = opmatrix.orthogroups_for_phenotype(pair[1])
@@ -120,5 +124,9 @@ module Boolean
 
     attr_reader :decipher
 
+
+    def read *args
+      raise("Can't read a BOPMatrix: some attributes not saved")
+    end
   end
 end
