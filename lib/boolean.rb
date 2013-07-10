@@ -76,7 +76,7 @@ module Boolean
       from     = opts[:op].nil? ? from_opm : BOPMatrix.new(from_opm, opts[:op])
 
       real     = DMatrix.new(to, from)
-      real.write("real")
+      real.write("real", false)
 
       start_i  = opts[:start]
       end_i    = opts[:end]
@@ -86,7 +86,10 @@ module Boolean
           say_with_time "(#{i}/#{end_i})" do
             random_from = from.send(opts[:with])
             random      = DMatrix.new(to, random_from)
-            random.write("random.#{i}")
+
+            # Write the file
+            random_filename = "random.#{i}"
+            random.write(random_filename, :compress)
           end
         end
       end
@@ -98,7 +101,9 @@ module Boolean
     # Writes to a matrix file called "counts". Returns the real matrix and the counts together.
     def analyze_permutation_test(n)
       real_matrix = say_with_time "Reading 'real' matrix" do
+        #`gunzip -c real.gz > real`
         DMatrix.read("real") # rows:to; columns:from
+        #`rm real`
       end
 
       # Track the distributions by p-value

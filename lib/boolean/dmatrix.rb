@@ -19,5 +19,24 @@ module Boolean
         end
       end
     end
+
+    # Preferentially read a non-compressed file by this name, then a gzipped one.
+    def read filename
+      if File.exists?(filename)
+        super(filename)
+      else
+        `gunzip -c #{filename}.gz > #{filename}`
+        super(filename)
+        `rm #{filename}`
+      end
+    end
+
+    # Write matrix as a binary file; does not compress by default.
+    def write filename, compress=nil
+      super(filename)
+      if compress
+        `gzip #{filename}`
+      end
+    end
   end
 end
