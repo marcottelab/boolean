@@ -1,0 +1,11 @@
+--- 
+:j: 8 # number to run in parallel
+:n: 100 # total number of permutations
+:with: :shuffle_rows # :shuffle_each_row
+:from: 
+- phenotypes.2.woods
+- Dr
+:to: 
+- phenotypes.2.mcgary
+- Hs
+:op: :|

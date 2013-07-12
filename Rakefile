@@ -59,6 +59,48 @@ task :pry do |task|
   run *cmd
 end
 
+task :environment do |task|
+  require("./lib/boolean.rb")
+end
+
+def call_permutation_test to, from, real, i, num_each, num_this, with
+  puts "Running #{i}"
+  Boolean.parallel_permutation_test(to, from, real, {
+    :start => i*num_each, 
+    :end => (i*num_each)+num_this,
+    :with => with
+  })
+end
+
+task :permutation_test => :environment do |task|
+  opts = YAML.load(File.read("config.yaml"))
+  j = opts.delete(:j)
+  n = opts.delete(:n)
+  n_each = n / j
+
+  reader   = Boolean.reader([opts[:to][1], opts[:from][1]])
+  to_gpm   = Boolean.gp_matrix(*opts[:to])
+  to       = to_gpm.opmatrix(reader)
+  from_gpm = Boolean.gp_matrix(*opts[:from])
+  from_opm = from_gpm.opmatrix(reader)
+  from     = opts[:op].nil? ? from_opm : Boolean::BOPMatrix.new(from_opm, opts[:op])
+
+  real     = Boolean::DMatrix.new(to, from)
+  real.write("real", false)
+
+  task_list = [] 
+ 
+  j.times do |jj|
+    task = Thread.new do
+      n_this = jj == j-1 ? (n - (n/j).to_i*(j-1)) : (n/j).to_i
+      call_permutation_test(to, from, real, jj, n_each, n_this, opts[:with])
+    end
+    task_list << task
+  end
+
+  task_list.each { |task| task.join }
+end
+
 #namespace :console do
 #  CONSOLE_CMD = ['irb', "-r './lib/boolean.rb'"]
 #  desc "Run console under GDB."
