@@ -3,6 +3,7 @@ tmp/
 .idea
 Gemfile.lock
 random.*
+real
 associations.yaml
 lib/hypergeometric.so
 lib/hypergeometric.bundle
