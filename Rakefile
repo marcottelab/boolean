@@ -98,14 +98,13 @@ task :permutation_test => :environment do |task|
   task_list = [] 
  
   j.times do |jj|
-    task = Thread.new do
+    Process.fork do
       n_this = jj == j-1 ? (n - (n/j).to_i*(j-1)) : (n/j).to_i
       call_permutation_test(to, from, real, jj, n_each, n_this, opts[:with])
     end
-    task_list << task
   end
 
-  task_list.each { |task| task.join }
+  Process.waitall
 end
 
 #namespace :console do
