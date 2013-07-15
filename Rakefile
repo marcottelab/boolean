@@ -85,8 +85,15 @@ task :permutation_test => :environment do |task|
   from_opm = from_gpm.opmatrix(reader)
   from     = opts[:op].nil? ? from_opm : Boolean::BOPMatrix.new(from_opm, opts[:op])
 
-  real     = Boolean::DMatrix.new(to, from)
-  real.write("real", false)
+  real = if File.exists?("real") || File.exists?("real.gz")
+    Boolean.say_with_time "Reading existing distance matrix for real" do
+      Boolean::DMatrix.read("real")
+    end
+  else
+    Boolean.say_with_time "Generating distance matrix for real" do
+      Boolean::DMatrix.new(to, from).tap { |r| r.write("real", false) }
+    end
+  end
 
   task_list = [] 
  

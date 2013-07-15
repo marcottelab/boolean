@@ -54,6 +54,24 @@ module Boolean
       GPMatrix.new "data/#{basename}.#{species}", species
     end
 
+    def parallel_permutation_test(to, from, real, opts)
+      start_i  = opts[:start]
+      end_i    = opts[:end]
+
+      say_with_time "Permuting #{end_i-start_i} times" do
+        (start_i...end_i).each do |i|
+          say_with_time "(#{i}/#{end_i})" do
+            random_from = from.send(opts[:with])
+            random      = DMatrix.new(to, random_from)
+
+            # Write the file
+            random_filename = "random.#{i}"
+            random.write(random_filename, :compress)
+          end
+        end
+      end
+    end
+
     def permutation_test(opts = {})
       opts.reverse_merge!({
         :start => 0,

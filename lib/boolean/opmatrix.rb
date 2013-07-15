@@ -136,7 +136,7 @@ module Boolean
           end
         end
 
-        t[new_i,new_i] = diag
+        t[new_i,new_i] = diag unless new_i >= self.shape[1] # Prevent RangeError
         t.yale_vector_insert(new_i, shuffled_indices.to_a, [1]*shuffled_indices.size)
       end
 
