@@ -60,13 +60,17 @@ module Boolean
 
       say_with_time "Permuting #{end_i-start_i} times" do
         (start_i...end_i).each do |i|
-          say_with_time "(#{i}/#{end_i})" do
-            random_from = from.send(opts[:with])
-            random      = DMatrix.new(to, random_from)
+          if File.exists?("random.#{i}.gz")
+            STDERR.puts "Iteration #{i} already appears to exist; skipping."
+          else
+            say_with_time "(#{i}/#{end_i})" do
+              random_from = from.send(opts[:with])
+              random      = DMatrix.new(to, random_from)
 
-            # Write the file
-            random_filename = "random.#{i}"
-            random.write(random_filename, :compress)
+              # Write the file
+              random_filename = "random.#{i}"
+              random.write(random_filename, :compress)
+            end
           end
         end
       end
