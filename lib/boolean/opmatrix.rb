@@ -174,7 +174,7 @@ module Boolean
         end
 
         # Fast-insert the indices in the Yale storage
-        t.yale_vector_insert(new_i, new_indices.to_a, [1]*new_indices.size)
+        t.vector_set(new_i, new_indices.to_a, [1]*new_indices.size)
       end
 
       return t # return the copy with the shuffled rows! Hooray!
@@ -182,7 +182,8 @@ module Boolean
 
     # Gives the set of orthogroup indices for some phenotype index (index means internal/renumbered, not the ID from
     # data files).
-    alias_method :orthogroups_for_phenotype, :yale_row_as_array #:yale_row_as_sorted_set
+    alias_method :orthogroups_for_phenotype, :yale_row_as_array #:yale_ja_d_keys_at
+
 
     class << self
       # Make sure we re-calculate duplicate rows upon matrix loading
