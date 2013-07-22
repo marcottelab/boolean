@@ -49,11 +49,13 @@ GDB_OPTIONS = []
 
 RSpec::Core::RakeTask.new(:spec)
 
+desc "Start an irb console"
 task :console do |task|
   cmd = [ 'irb', "-r './lib/boolean.rb'" ]
   run *cmd
 end
 
+desc "Start a pry console"
 task :pry do |task|
   cmd = [ 'pry', "-r './lib/boolean.rb'" ]
   run *cmd
@@ -72,6 +74,7 @@ def call_permutation_test to, from, real, i, num_each, num_this, with
   })
 end
 
+desc "Run a permutation test according to config.yaml"
 task :permutation_test => :environment do |task|
   opts = YAML.load(File.read("config.yaml"))
   j = opts.delete(:j)
@@ -105,6 +108,20 @@ task :permutation_test => :environment do |task|
   end
 
   Process.waitall
+end
+
+def count_permutations
+  `ls random.*.gz | wc -l`.to_i
+end
+
+namespace :permutation_test do
+  desc "Plot the results of a permutation test"
+  task :plot, [:n] => :environment do |task,args|
+    args.with_defaults({:n => count_permutations})
+    Boolean.say_with_time "Reading #{args[:n]} permutations" do
+      Boolean.plot_permutation_test(args[:n].to_i)
+    end
+  end
 end
 
 #namespace :console do
