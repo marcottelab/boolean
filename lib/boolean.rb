@@ -19,6 +19,16 @@ class Hash
   end
 end
 
+unless File.respond_to?(:write)
+  class File
+    def self.write filename, obj
+      File.open(filename, 'w') do |f|
+        f.write(obj.to_yaml)
+      end
+    end
+  end
+end
+
 # Modified from: http://markmail.org/message/ntlhxtacsqjh7rd4 (thanks to Why the lucky stiff!)
 # Ended up just basing it mostly on Hash though.
 class RBTree
@@ -58,6 +68,8 @@ module Boolean
       start_i  = opts[:start]
       end_i    = opts[:end]
 
+      random_dist = RBTree.new   { |h,k| h[k] = 0 }
+
       say_with_time "Permuting #{end_i-start_i} times" do
         (start_i...end_i).each do |i|
           if File.exists?("random.#{i}.gz")
@@ -70,9 +82,17 @@ module Boolean
               # Write the file
               random_filename = "random.#{i}"
               random.write(random_filename, :compress)
+
+              random.each do |v|
+                random_dist[v] += 1
+              end
             end
           end
         end
+      end
+
+      say_with_time "Writing random dist to file" do
+        File.write("random.dist.yml.#{end_i}", random_dist)
       end
     end
 
@@ -100,6 +120,13 @@ module Boolean
       real     = DMatrix.new(to, from)
       real.write("real", false)
 
+      real_dist   = RBTree.new   { |h,k| h[k] = 0 }
+      random_dist = RBTree.new   { |h,k| h[k] = 0 }
+
+      real.each do |v|
+        real_dist[v]  += 1
+      end
+
       start_i  = opts[:start]
       end_i    = opts[:end]
 
@@ -109,6 +136,10 @@ module Boolean
             random_from = from.send(opts[:with])
             random      = DMatrix.new(to, random_from)
 
+            random.each do |v|
+              random_dist[v] += 1
+            end
+
             # Write the file
             random_filename = "random.#{i}"
             random.write(random_filename, :compress)
@@ -116,7 +147,12 @@ module Boolean
         end
       end
 
-      true
+      say_with_time "Writing distributions to files" do
+        File.write("real.dist.yml.#{end_i}", real_dist)
+        File.write("random.dist.yml.#{end_i}", random_dist)
+      end
+
+      [real_dist, random_dist]
     end
 
     # Analyze the results of a permutation test. Only argument is +n+, the number of randomizations.
@@ -133,7 +169,7 @@ module Boolean
       real_dist   = RBTree.new   { |h,k| h[k] = 0 }
       random_dist = RBTree.new   { |h,k| h[k] = 0 }
 
-      real_matrix.each_stored_with_indices do |v,i,j|
+      real_matrix.each do |v|
         real_dist[v]  += 1
       end
 
@@ -166,16 +202,22 @@ module Boolean
        YAML::load(File.read('random.dist.yml'))]
     end
 
-    def plot_permutation_test(n)
+    def merge_permutation_tests
+      Dir::glob("")
+    end
 
-      real, ran = analyze_permutation_test(n)
+    def plot_permutation_test(*args)
+      real = nil
+      ran = nil
+
+      if arg.size > 1
+        real = args.shift
+        ran = args.shift
+      else
+        real, ran = analyze_permutation_test(args.shift)
+      end
+
       return Boolean::Plot.fig_2b(real, ran)
-
-      [real, ran]
-      #r = Simpler.new
-      #r.pdf_viewer = "/Applications/Preview.app/Contents/MacOS/Preview"
-      #r.eval! { "plot(" }
-
     end
 
     def say_with_time msg
