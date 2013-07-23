@@ -101,31 +101,20 @@ module Boolean
         :start => 0,
         :end => 1000,
         :with => :shuffle_each_row, # or :shuffle_rows
-        :from => ["phenotypes.2.woods", "Dr"],
-        :to => ["phenotypes.2.mcgary", "Hs"],
-        :op => nil
       })
 
-      STDERR.puts "Initial setup..."
-      reader   = reader([opts[:to][1], opts[:from][1]])
 
-      to_gpm   = gp_matrix(*opts[:to])
-      to       = to_gpm.opmatrix(reader)
+      analysis = say_with_time "Creating Boolean::Analysis object" do
+        Boolean::Analysis.new(opts)
+      end
 
-      from_gpm = gp_matrix(*opts[:from])
-      from_opm = from_gpm.opmatrix(reader)
+      to       = analysis.to
+      from     = analysis.from
+      real     = analysis.distances
 
-      from     = opts[:op].nil? ? from_opm : BOPMatrix.new(from_opm, opts[:op])
-
-      real     = DMatrix.new(to, from)
-      real.write("real", false)
-
-      real_dist   = RBTree.new   { |h,k| h[k] = 0 }
+      real_dist   = analysis.pvalue_distribution
       random_dist = RBTree.new   { |h,k| h[k] = 0 }
 
-      real.each do |v|
-        real_dist[v]  += 1
-      end
 
       start_i  = opts[:start]
       end_i    = opts[:end]
@@ -226,6 +215,28 @@ module Boolean
       end
 
       return Boolean::Plot.fig_2b(real, ran)
+    end
+
+    def analyze_best_hits(opts = {})
+      opts.reverse_merge!({
+        :from => ["phenotypes.2.woods", "Dr"],
+        :to => ["phenotypes.2.mcgary", "Hs"],
+        :op => nil
+      })
+
+      STDERR.puts "Initial setup..."
+      reader   = reader([opts[:to][1], opts[:from][1]])
+
+      to_gpm   = gp_matrix(*opts[:to])
+      to       = to_gpm.opmatrix(reader)
+
+      from_gpm = gp_matrix(*opts[:from])
+      from_opm = from_gpm.opmatrix(reader)
+
+      from     = opts[:op].nil? ? from_opm : BOPMatrix.new(from_opm, opts[:op])
+
+      real     = File.exist?("real") ? DMatrix.read("real") : DMatrix.new(to, from).tap { |r| r.write("real", false) }
+
     end
 
     def say_with_time msg
