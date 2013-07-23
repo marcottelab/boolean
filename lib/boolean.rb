@@ -91,7 +91,7 @@ module Boolean
       end
 
       say_with_time "Writing random dist to file" do
-        File.write("random.dist.yml.#{end_i}", random_dist)
+        File.write("random.dist.yml.#{end_i}", random_dist.to_yaml)
       end
     end
 
@@ -148,8 +148,8 @@ module Boolean
       end
 
       say_with_time "Writing distributions to files" do
-        File.write("real.dist.yml", real_dist)
-        File.write("random.dist.yml", random_dist)
+        File.write("real.dist.yml", real_dist.to_yaml)
+        File.write("random.dist.yml", random_dist.to_yaml)
       end
 
       [real_dist, random_dist]
@@ -190,8 +190,8 @@ module Boolean
       end
 
       say_with_time "Writing distributions to files" do
-        File.write('real.dist.yml', real_dist)
-        File.write('random.dist.yml', random_dist)
+        File.write('real.dist.yml', real_dist.to_yaml)
+        File.write('random.dist.yml', random_dist.to_yaml)
       end
 
       [real_dist, random_dist]
@@ -210,7 +210,7 @@ module Boolean
           merged[pvalue] += count
         end
       end
-      File.write("random.dist.yml", merged)
+      File.write("random.dist.yml", merged.to_yaml)
       merged
     end
 
@@ -218,7 +218,7 @@ module Boolean
       real = nil
       ran = nil
 
-      if arg.size > 1
+      if args.size > 1
         real = args.shift
         ran = args.shift
       else
