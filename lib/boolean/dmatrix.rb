@@ -46,7 +46,7 @@ module Boolean
 
     # Write matrix as a binary file; does not compress by default.
     def write filename, compress=nil
-      STDERR.puts("Writing #{self.inspect}")
+      STDERR.puts("Writing #{self.inspect} to #{filename}")
       x = super(filename)
       `gzip #{filename}` if compress
       x

@@ -69,11 +69,10 @@ module Boolean
       end_i    = opts[:end]
 
       random_dist = RBTree.new   { |h,k| h[k] = 0 }
-
       say_with_time "Permuting #{end_i-start_i} times" do
         (start_i...end_i).each do |i|
           if File.exists?("random.#{i}.gz")
-            STDERR.puts "Iteration #{i} already appears to exist; skipping."
+            puts "Iteration #{i} already appears to exist; skipping."
           else
             say_with_time "(#{i}/#{end_i})" do
               random_from = from.send(opts[:with])
