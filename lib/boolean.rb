@@ -95,6 +95,7 @@ module Boolean
       end
     end
 
+    # Deprecated. Use parallel_permutation_test
     def permutation_test(opts = {})
       opts.reverse_merge!({
         :start => 0,
@@ -147,8 +148,8 @@ module Boolean
       end
 
       say_with_time "Writing distributions to files" do
-        File.write("real.dist.yml.#{end_i}", real_dist)
-        File.write("random.dist.yml.#{end_i}", random_dist)
+        File.write("real.dist.yml", real_dist)
+        File.write("random.dist.yml", random_dist)
       end
 
       [real_dist, random_dist]
@@ -202,7 +203,15 @@ module Boolean
     end
 
     def merge_permutation_tests
-      Dir::glob("")
+      merged = RBTree.new { |h,k| h[k] = 0 }
+      Dir::glob("random.dist.yml.*").each do |filename|
+        current = YAML::load(File.read(filename))
+        current.each_pair do |pvalue, count|
+          merged[pvalue] += count
+        end
+      end
+      File.write("random.dist.yml", merged)
+      merged
     end
 
     def plot_permutation_test(*args)
