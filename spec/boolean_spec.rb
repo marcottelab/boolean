@@ -32,18 +32,29 @@ describe :boolean do
     # Test non-independent shuffling
     shuffled= dr_opm.shuffle_rows
 
+    i_offset = 0
     (0...dr_opm.shape[0]).each do |i|
+      if dr_opm.is_skippable?(i)
+        i_offset += 1
+        next
+      end
       a = dr_opm.yale_row_as_array(i)
-      b = shuffled.yale_row_as_array(i)
+      b = shuffled.yale_row_as_array(i-i_offset)
+      require 'pry'; binding.pry if a.size != b.size
       a.size.should equal(b.size)
     end
 
     # Test independent shuffling
     shuffled= dr_opm.shuffle_each_row
 
+    i_offset = 0
     (0...dr_opm.shape[0]).each do |i|
+      if dr_opm.is_skippable?(i)
+        i_offset += 1
+        next
+      end
       a = dr_opm.yale_row_as_array(i)
-      b = shuffled.yale_row_as_array(i)
+      b = shuffled.yale_row_as_array(i-i_offset)
       a.size.should equal(b.size)
     end
   end
