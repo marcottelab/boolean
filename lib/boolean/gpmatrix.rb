@@ -46,7 +46,7 @@ module Boolean
       end
 
       # Call the actual matrix creation constructor with the appropriate size
-      super(:yale, [@phenotype_count, gene_count], association_count + @phenotype_count, :byte)
+      super([@phenotype_count, gene_count], association_count + @phenotype_count, dtype: :byte, stype: :yale)
 
       # Add the associations
       associations.each_pair do |j, i_array|

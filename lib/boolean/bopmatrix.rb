@@ -105,12 +105,7 @@ module Boolean
             j_array = associations.shift
 
             # Insert the whole array at once using a specially exposed helper function.
-            self.vector_set(i, j_array.to_a, [1]*j_array.size)
-
-            # The above is a faster way of doing the following:
-            #j_array.each do |j|
-            #  self[i,j] = 1
-            #end
+            self.__yale_vector_set__(i, j_array.to_a, [1]*j_array.size)
 
             i            += 1
             bar.progress += j_array.size

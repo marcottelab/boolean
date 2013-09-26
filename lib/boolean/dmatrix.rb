@@ -10,12 +10,14 @@ module Boolean
     # these don't actually have any skippable rows.
     def initialize to, from
       raise(ArgumentError, "invalid shape! [#{to.shape[0]}, #{from.shape[0]}]") if to.shape[0] == 0 || from.shape[0] == 0
-      super(:dense, [to.shape[0], from.shape[0]], :float64)
+      super([to.shape[0], from.shape[0]], dtype: :float64, stype: :dense)
 
       skippable_rows = to.skippable_rows
       skippable_cols = from.skippable_rows
       rows = (0...to.shape[0]).to_a - skippable_rows
       cols = (0...from.shape[0]).to_a - skippable_cols
+
+      STDERR.puts "Filling in non-skippable entries"
 
       rows.each do |i|
         m_set = to.orthogroups_for_phenotype(i)
@@ -29,6 +31,8 @@ module Boolean
         end
       end
 
+      STDERR.puts "Filling in skippable rows"
+
       # Fill in skipped entries with infinity.
       skippable_rows.each do |i|
         (0...shape[1]).each do |j|
@@ -36,11 +40,15 @@ module Boolean
         end
       end
 
+      STDERR.puts "Filling in skippable columns"
+
       skippable_cols.each do |j|
         (0...shape[0]).each do |i|
           self[i,j] = Float::INFINITY
         end
       end
+
+      STDERR.puts "Done creating DMatrix"
     end
 
 

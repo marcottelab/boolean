@@ -19,7 +19,18 @@ module Boolean
 
       @from      = opts[:op].nil? ? from_opm : BOPMatrix.new(from_opm, opts[:op])
 
-      @distances = File.exist?("real") ? DMatrix.read("real") : DMatrix.new(@to, @from).tap { |r| r.write("real", false) }
+      @distances = if File.exist?("real")
+                     Boolean.say_with_time "Reading existing 'real' matrix" do
+                       DMatrix.read("real")
+                     end
+                   else
+                     d = Boolean.say_with_time "Creating new DMatrix" do
+                       DMatrix.new(@to, @from)
+                     end
+                     Boolean.say_with_time "Writing 'real' matrix" do
+                       d.write("real", false)
+                     end
+                   end
 
       @op = opts[:op]
     end

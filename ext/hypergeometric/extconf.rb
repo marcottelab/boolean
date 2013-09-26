@@ -22,9 +22,9 @@ CONFIG['CC'] = 'gcc'
 find_library("gsl", "gsl_sf_lnfact")#, ["/usr/local/include/gsl/gsl_sf_gamma.h"])
 find_header("gsl/gsl_sf_gamma.h", ["/usr/local/include/"])
 # For release, these next two should both be changed to -O3.
-# $CFLAGS += " -O3 " #" -O0 -g "
+$CFLAGS += " -O3 " #" -O0 -g "
 # $CFLAGS += " -static -O0 -g "
-# $CPPFLAGS += " -O3 -std=#{$CPP_STANDARD} " #" -O0 -g -std=#{$CPP_STANDARD} " #-fmax-errors=10 -save-temps
+$CPPFLAGS += " -O3 " #"-std=#{$CPP_STANDARD} " #" -O0 -g -std=#{$CPP_STANDARD} " #-fmax-errors=10 -save-temps
 # $CPPFLAGS += " -static -O0 -g -std=#{$CPP_STANDARD} "
 
 $CFLAGS += ' -std=c99 '
