@@ -3,6 +3,7 @@ require "distribution"
 require "rbtree" # Use as an ordered hash
 require 'yaml'
 
+require_relative "boolean/analysis.rb"
 require_relative "boolean/gpmatrix.rb"
 require_relative "boolean/opmatrix.rb"
 require_relative "boolean/bopmatrix.rb"

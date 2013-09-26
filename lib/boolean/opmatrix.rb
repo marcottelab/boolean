@@ -137,7 +137,13 @@ module Boolean
         end
 
         t[new_i,new_i] = diag unless new_i >= self.shape[1] # Prevent RangeError
-        t.yale_vector_insert(new_i, shuffled_indices.to_a, [1]*shuffled_indices.size)
+
+        # This function only works on Yale matrices and allows us to quickly insert columns.
+        # Slice setting t[new_i,:*] is actually about the same speed, but that would require us to use
+        # an Array the size of t's second dimension, mostly containing 0s, and *that* is not especially
+        # fast in Ruby.
+        t.__yale_vector_set__(new_i, shuffled_indices.to_a, [1]*shuffled_indices.size)
+
       end
 
       #t.setup_skip_table!
@@ -174,7 +180,7 @@ module Boolean
         end
 
         # Fast-insert the indices in the Yale storage
-        t.vector_set(new_i, new_indices.to_a, [1]*new_indices.size)
+        t.__yale_vector_set__(new_i, new_indices.to_a, [1]*new_indices.size)
       end
 
       return t # return the copy with the shuffled rows! Hooray!
@@ -182,7 +188,7 @@ module Boolean
 
     # Gives the set of orthogroup indices for some phenotype index (index means internal/renumbered, not the ID from
     # data files).
-    alias_method :orthogroups_for_phenotype, :yale_row_as_array #:yale_ja_d_keys_at
+    alias_method :orthogroups_for_phenotype, :yale_ja_d_keys_at
 
 
     class << self

@@ -3,13 +3,12 @@ require "ruby-progressbar"
 
 module Boolean
   class Combo
-    def initialize left, op, right
+    def initialize left, right
       @left  = left
-      @op    = @op
       @right = right
     end
 
-    attr_reader :left, :op, :right
+    attr_reader :left, :right
   end
 
   class BOPMatrix < OPMatrix
@@ -59,7 +58,7 @@ module Boolean
 
             left_right  = left.send(operation, right)
             if left_right != left && left_right != right && left_right.size > 2 # no point in duplicating existing phenotypes
-              combo_obj = Combo.new(pair[0], operation, pair[1])
+              combo_obj = Combo.new(pair[0], pair[1])
 
               if uniques.has_key?(left_right.hash)
                 @decipher[uniques[left_right.hash]] << combo_obj
@@ -76,7 +75,7 @@ module Boolean
 
             right_left = right.send(operation, left)
             if right_left != right && right_left != right && right_left.size > 2 && !uniques.include?(right_left.hash)
-              combo_obj = Combo.new(pair[1], operation, pair[0])
+              combo_obj = Combo.new(pair[1], pair[0])
 
               if uniques.has_key?(right_left.hash)
                 @decipher[uniques[right_left.hash]] << combo_obj
@@ -106,7 +105,7 @@ module Boolean
             j_array = associations.shift
 
             # Insert the whole array at once using a specially exposed helper function.
-            self.yale_vector_insert(i, j_array.to_a, [1]*j_array.size)
+            self.vector_set(i, j_array.to_a, [1]*j_array.size)
 
             # The above is a faster way of doing the following:
             #j_array.each do |j|
