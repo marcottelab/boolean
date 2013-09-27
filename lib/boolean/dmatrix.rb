@@ -26,6 +26,7 @@ module Boolean
           # The actual calculation
           n_set = from.orthogroups_for_phenotype(j)
           k_set = m_set & n_set
+
           #self[i,j] = 1.0 - Distribution::Hypergeometric.cdf(k_set.size-1, m_set.size, n_set.size, to.shape[1])
           self[i,j] = Hypergeometric.cdf(k_set.size, m_set.size, n_set.size, to.shape[1])
         end
@@ -35,17 +36,13 @@ module Boolean
 
       # Fill in skipped entries with infinity.
       skippable_rows.each do |i|
-        (0...shape[1]).each do |j|
-          self[i,j] = Float::INFINITY
-        end
+        self[i,0...shape[1]] = Float::INFINITY # Use a slice-set to set all at once.
       end
 
       STDERR.puts "Filling in skippable columns"
 
       skippable_cols.each do |j|
-        (0...shape[0]).each do |i|
-          self[i,j] = Float::INFINITY
-        end
+        self[0...shape[0],j] = Float::INFINITY # Set the whole column at once.
       end
 
       STDERR.puts "Done creating DMatrix"

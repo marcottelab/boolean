@@ -21,11 +21,11 @@ module Boolean
 
       @distances = if File.exist?("real")
                      Boolean.say_with_time "Reading existing 'real' matrix" do
-                       DMatrix.read("real")
+                       Boolean::DMatrix.read("real")
                      end
                    else
                      d = Boolean.say_with_time "Creating new DMatrix" do
-                       DMatrix.new(@to, @from)
+                       Boolean::DMatrix.new(@to, @from)
                      end
                      Boolean.say_with_time "Writing 'real' matrix" do
                        d.write("real", false)

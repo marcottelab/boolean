@@ -44,6 +44,13 @@ VALGRIND_MEMORYFILL_OPTIONS = [
         "--free-fill=66 ",
 ]
 
+CALLGRIND_OPTIONS = [
+    "--tool=callgrind",
+    "--dump-instr=yes",
+    "--simulate-cache=yes",
+    "--collect-jumps=yes"
+]
+
 GDB_OPTIONS = []
 
 
@@ -180,6 +187,13 @@ namespace :spec do
   desc "Run specs under Valgrind."
   task :valgrind do |task|
     cmd = [ 'valgrind' ] + VALGRIND_OPTIONS
+    cmd += RSPEC_CMD
+    run( *cmd )
+  end
+
+  desc "Run specs under Callgrind."
+  task :callgrind => [ :compile ] do |task|
+    cmd = [ 'valgrind' ] + CALLGRIND_OPTIONS
     cmd += RSPEC_CMD
     run( *cmd )
   end

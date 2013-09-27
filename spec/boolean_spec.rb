@@ -22,6 +22,15 @@ describe :boolean do
   #  hs_opm.shape[1].should == mm_opm.shape[1]
   #end
 
+  it "should quickly run a Boolean::Analysis" do
+    `rm real`
+    a = Boolean::Analysis.new(:op => :|)
+  end
+
+  it "should quickly read a DMatrix file 'real'" do
+    d = Boolean::DMatrix.read('real')
+  end
+=begin
   it "should generate a boolean orthogroup-phenotype matrix and shuffle-copy it properly" do
     reader = Boolean.reader(%w{Hs Dr})
 
@@ -58,6 +67,6 @@ describe :boolean do
       a.size.should equal(b.size)
     end
   end
-
+=end
 
 end
