@@ -195,7 +195,6 @@ module Boolean
       # Make sure we re-calculate duplicate rows upon matrix loading
       def read *args
         x = super(*args)
-        binding.pry
         x.send :eval, "@skip_table = {}"
         x
       end

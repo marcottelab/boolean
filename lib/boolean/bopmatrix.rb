@@ -106,7 +106,8 @@ module Boolean
           last_capacity = self.capacity
 
           begin
-            j_array = associations.shift
+            j_array = associations.shift.sort # this MUST be sorted or we'll be in for a world of hurt when
+            # it's time to calculate set intersections.
 
             # Insert the whole array at once using a specially exposed helper function.
             self.__yale_vector_set__(i, j_array.to_a, [1]*j_array.size)

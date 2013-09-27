@@ -26,6 +26,7 @@ module Boolean
           # The actual calculation
           n_set = from.orthogroups_for_phenotype(j)
           k_set = m_set & n_set
+          # k_set = to.yale_row_keys_intersection(i, from, j) # Can also do this instead
 
           #self[i,j] = 1.0 - Distribution::Hypergeometric.cdf(k_set.size-1, m_set.size, n_set.size, to.shape[1])
           self[i,j] = Hypergeometric.cdf(k_set.size, m_set.size, n_set.size, to.shape[1])
