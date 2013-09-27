@@ -5,6 +5,15 @@ module Boolean
   # gene-phenotype matrix (GPMatrix) to an orthogroup-phenotype matrix (OPMatrix).
   class OrthoReader
 
+    def inspect #:nodoc:
+      ["#<Boolean::OrthoReader:0x00#{(self.object_id << 1).to_s(16)}",
+       "g_to_o.size=#{@g_to_o.size}",
+       "r_to_g.size=#{@r_to_g.size}",
+       "@renumber.size=#{@renumber.size}",
+      "@orthogroup_count=#{@orthogroup_count}"].join(' ') + ">"
+    end
+
+
     attr_reader :g_to_o, :r_to_g, :renumber, :orthogroup_count
 
     # Convert a (renumbered) gene ID (a GPMatrix index) to our renumbered orthogroup ID (an OPMatrix index)

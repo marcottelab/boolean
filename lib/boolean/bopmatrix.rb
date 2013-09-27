@@ -8,6 +8,10 @@ module Boolean
       @right = right
     end
 
+    def inspect
+      "[#{@left}|#{@right}]"
+    end
+
     attr_reader :left, :right
   end
 
