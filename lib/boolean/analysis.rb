@@ -201,10 +201,10 @@ module Boolean
                 end
               end
 
-
               binary_phenotype_descriptions(j).each.with_index do |desc,idx|
                 d1, d2 = unitary_distances[idx]
                 puts "   - #{desc} : #{'%1.2E' % d1} : #{'%1.2E' % d2}\t#{mark.call(d1)} : #{mark.call(d2)} "
+
               end
             else # No filtering -- just print them all.
               binary_phenotype_descriptions(j).each.with_index do |desc,idx|

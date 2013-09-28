@@ -163,10 +163,18 @@ end
 namespace :permutation_test do
   desc "Plot the results of a permutation test"
   task :plot, [:n] => :environment do |task,args|
+    opts = YAML.load(File.read("config.yaml"))
     args.with_defaults({:n => count_permutations})
     Boolean.say_with_time "Reading #{args[:n]} permutations" do
-      Boolean.plot_permutation_test(args[:n].to_i)
+      Boolean.plot_permutation_test(args[:n].to_i, opts)
     end
+  end
+
+
+  desc "Merge the results of parallel permutation tests"
+  task :merge do |task|
+    opts = YAML.load(File.read("config.yaml"))
+    Boolean::merge_permutation_tests(opts[:op])
   end
 end
 

@@ -38,7 +38,6 @@ module Boolean
 
         # genes to orthogroups and orthogroups to genes
         @g_to_o = {}
-        o_to_g = Hash.new { |h,k| h[k] = [] }
         @r_to_g = Hash.new { |h,k| h[k] = [] }
 
         count = 0
@@ -52,16 +51,20 @@ module Boolean
           # skips.
           orthogroup_id = orthogroup_id.to_i
 
+          # If a gene has isoforms that are split between two orthogroups, mark that the orthogroups are merged.
+          # Use the first-encountered orthogroup ID for both.
           if @g_to_o.has_key?(gene) && @g_to_o[gene] != orthogroup_id
             @renumber[orthogroup_id] = @renumber[@g_to_o[gene]]
           else
             @renumber[orthogroup_id] = count
             count += 1
           end
+          @g_to_o[gene] = orthogroup_id  # Need to keep track of the orthogroup ID so we can continue to renumber.
 
-          @g_to_o[gene] = orthogroup_id
-          o_to_g[orthogroup_id] << gene unless o_to_g[orthogroup_id].include?(gene)
+          # Map renumbered (merged) orthogroup IDs to lists of genes that belong in them.
           @r_to_g[@renumber[orthogroup_id]] << gene unless @r_to_g[@renumber[orthogroup_id]].include?(gene)
+
+          # Save the total number of merged orthogroups.
           @orthogroup_count = count
         end
 

@@ -3,8 +3,8 @@
 :n: 1000 # total number of permutations
 :with: :shuffle_rows # :shuffle_each_row
 :from: 
-- phenotypes.2.woods
-- Dr
+- phenotypes.2.geisha
+- Gg
 :to: 
 - phenotypes.2.mcgary
 - Mm
