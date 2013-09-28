@@ -72,16 +72,16 @@ module Boolean
       random_dist = RBTree.new   { |h,k| h[k] = 0 }
       say_with_time "Permuting #{end_i-start_i} times" do
         (start_i...end_i).each do |i|
-          if File.exists?("random.#{i}.gz")
-            puts "Iteration #{i} already appears to exist; skipping."
+          filename = "random.#{Boolean::Analysis.filename_friendly_op(opts[:op])}.#{i}"
+          if File.exists?("#{filename}.gz")
+            puts "Iteration #{i} already appears to exist (#{filename}); skipping."
           else
             say_with_time "(#{i}/#{end_i})" do
               random_from = from.send(opts[:with])
               random      = DMatrix.new(to, random_from)
 
               # Write the file
-              random_filename = "random.#{i}"
-              random.write(random_filename, :compress)
+              random.write(filename, :compress)
 
               random.each do |v|
                 random_dist[v] += 1

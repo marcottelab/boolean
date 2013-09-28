@@ -1,5 +1,5 @@
 --- 
-:j: 8 # number to run in parallel
+:j: 2 # number to run in parallel
 :n: 1000 # total number of permutations
 :with: :shuffle_rows # :shuffle_each_row
 :from: 
@@ -7,5 +7,6 @@
 - Dr
 :to: 
 - phenotypes.2.mcgary
-- Hs
-:op: :|
+- Mm
+:op: :&
+:components: true # also load/calculate the individual p-values of each phenotype for comparison to the boolean combinations

@@ -95,13 +95,15 @@ task :permutation_test => :environment do |task|
   from_opm = from_gpm.opmatrix(reader)
   from     = opts[:op].nil? ? from_opm : Boolean::BOPMatrix.new(from_opm, opts[:op])
 
-  real = if File.exists?("real") || File.exists?("real.gz")
-    Boolean.say_with_time "Reading existing distance matrix for real" do
-      Boolean::DMatrix.read("real")
+  filename = "real.#{Boolean::Analysis::filename_friendly_op(opts[:op])}"
+
+  real = if File.exists?(filename) || File.exists?("#{filename}.gz")
+    Boolean.say_with_time "Reading existing distance matrix for real (#{filename})" do
+      Boolean::DMatrix.read(filename)
     end
   else
-    Boolean.say_with_time "Generating distance matrix for real" do
-      Boolean::DMatrix.new(to, from).tap { |r| r.write("real", false) }
+    Boolean.say_with_time "Generating distance matrix for real (#{filename})" do
+      Boolean::DMatrix.new(to, from).tap { |r| r.write(filename, false) }
     end
   end
 
@@ -125,6 +127,12 @@ task :distance_matrix => :environment do |task|
   Boolean::Analysis.new(opts)
 end
 
+# Returns true if the file exists and is older than the config. This keeps us from accidentally writing over distance
+# matrices that we painstakingly generated.
+def older_than_config? filename
+  File.exists?(filename) && File.ctime(filename) < File.ctime("config.yaml")
+end
+
 desc "Make a filtered list for each phenolog combination within the cutoff (according to config.yaml)"
 task :filtered_output, [:k,:cutoff] => :environment do |task,args|
   args.with_defaults({k: 1, cutoff: 0.0001})
@@ -134,7 +142,14 @@ task :filtered_output, [:k,:cutoff] => :environment do |task,args|
 
   opts = YAML.load(File.read("config.yaml"))
 
-  raise("config has changed since 'real' matrix created; `touch real` to override this warning") if File.exists?("real") && File.ctime("real") < File.ctime("config.yaml")
+  warn_real     = opts[:components] && older_than_config?("real")
+  warn_real_op  = older_than_config?("real.#{opts[:op]}")
+
+  if warn_real || warn_real_op
+    warn("config has changed since 'real' matrix created; `touch real` to override this warning") if warn_real
+    warn("config has changed since 'real.#{opts[:op]}' matrix created; `touch real.#{opts[:op]}` to override this warning") if warn_real_op
+    raise(FileError, "outdated distance matrix/matrices present")
+  end
 
   a = Boolean::Analysis.new(opts)
   a.filter_and_display_all_binned_nearest **my_args
