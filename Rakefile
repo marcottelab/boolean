@@ -127,16 +127,17 @@ end
 
 desc "Make a filtered list for each phenolog combination within the cutoff (according to config.yaml)"
 task :filtered_output, [:k,:cutoff] => :environment do |task,args|
-  args.with_defaults(k: 1, cutoff: 0.0001)
-  args[:k]      = args[:k].to_i
-  args[:cutoff] = args[:cutoff].to_f
+  args.with_defaults({k: 1, cutoff: 0.0001})
+  my_args = {}
+  my_args[:k]      = args[:k].to_i
+  my_args[:cutoff] = args[:cutoff].to_f
 
   opts = YAML.load(File.read("config.yaml"))
 
   raise("config has changed since 'real' matrix created; `touch real` to override this warning") if File.exists?("real") && File.ctime("real") < File.ctime("config.yaml")
 
   a = Boolean::Analysis.new(opts)
-  a.filter_and_display_all_binned_nearest **args
+  a.filter_and_display_all_binned_nearest **my_args
 end
 
 def count_permutations
