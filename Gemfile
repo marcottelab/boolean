@@ -1,6 +1,6 @@
 source "http://rubygems.org"
 gem "nmatrix", :path => "../nmatrix"
-gem "gsl-nmatrix" #, :path => "../rb-gsl"
+#gem "gsl-nmatrix" #, :path => "../rb-gsl"
 gem "distribution" #, :path => "../distribution"
 gem "rspec-core"
 gem "rspec"
