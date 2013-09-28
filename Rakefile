@@ -117,6 +117,28 @@ task :permutation_test => :environment do |task|
   Process.waitall
 end
 
+desc "Generate a distance matrix based on config.yaml"
+task :distance_matrix => :environment do |task|
+  opts = YAML.load(File.read("config.yaml"))
+  raise("'real' matrix already exists") if File.exists?("real")
+
+  Boolean::Analysis.new(opts)
+end
+
+desc "Make a filtered list for each phenolog combination within the cutoff (according to config.yaml)"
+task :filtered_output, [:k,:cutoff] => :environment do |task,args|
+  args.with_defaults(k: 1, cutoff: 0.0001)
+  args[:k]      = args[:k].to_i
+  args[:cutoff] = args[:cutoff].to_f
+
+  opts = YAML.load(File.read("config.yaml"))
+
+  raise("config has changed since 'real' matrix created; `touch real` to override this warning") if File.exists?("real") && File.ctime("real") < File.ctime("config.yaml")
+
+  a = Boolean::Analysis.new(opts)
+  a.filter_and_display_all_binned_nearest **args
+end
+
 def count_permutations
   `ls random.*.gz | wc -l`.to_i
 end

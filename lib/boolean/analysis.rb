@@ -35,6 +35,7 @@ module Boolean
                      Boolean.say_with_time "Writing 'real' matrix" do
                        d.write("real", false)
                      end
+                     d
                    end
 
       @op = opts[:op]
@@ -135,20 +136,27 @@ module Boolean
 
         bins = binned_nearest(i, k: k, cutoff: cutoff)
         next if bins.empty? # Nothing found for this one.
+
+        str = "* #{unitary_phenotype_description(i, :to)}"
+
         bins.each.with_index do |bin,rank|
           bin.each do |j|
             from_set = from.orthogroups_for_phenotype(j)
             op_set   = to_set & from_set
-            binding.pry if op_set.size == 0
             next if op_set.size < 2 || from_set.size == op_set.size
 
+            unless str.nil? # Only print the phenotype once, and only do it if stuff has been found.
+              puts str
+              str = nil
+            end
+
             # Display the set information.
-            puts "  j=#{j}: ( #{to_set.size} | #{op_set.size} | #{from_set.size} )"
+            puts "  j=#{j}: ( #{to_set.size} | #{op_set.size} | #{from_set.size} )\tp=#{distances[i,j]}"
             # Display them.
             if self.op.nil?
               puts "   - #{unitary_phenotype_description(j, :from)}"
             else
-              binary_phenotype_descriptions(j, :from).each do |desc|
+              binary_phenotype_descriptions(j).each do |desc|
                 puts "   - #{desc}"
               end
             end
