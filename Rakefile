@@ -69,7 +69,8 @@ task :pry do |task|
 end
 
 task :environment do |task|
-  require("./lib/boolean.rb")
+  require "psych"
+  require "./lib/boolean.rb"
 end
 
 def call_permutation_test to, from, real, i, num_each, num_this, with, op
@@ -84,7 +85,7 @@ end
 
 desc "Run a permutation test according to config.yaml"
 task :permutation_test => :environment do |task|
-  opts = YAML.load(File.read("config.yaml"))
+  opts = Psych.load(File.read("config.yaml"))
   j = opts.delete(:j)
   n = opts.delete(:n)
   n_each = n / j
@@ -122,7 +123,7 @@ end
 
 desc "Generate a distance matrix based on config.yaml"
 task :distance_matrix => :environment do |task|
-  opts = YAML.load(File.read("config.yaml"))
+  opts = Psych.load(File.read("config.yaml"))
   raise("'real' matrix already exists") if File.exists?("real")
 
   Boolean::Analysis.new(opts)
@@ -141,7 +142,8 @@ task :filtered_output, [:k,:cutoff] => :environment do |task,args|
   my_args[:k]      = args[:k].to_i
   my_args[:cutoff] = args[:cutoff].to_f
 
-  opts = YAML.load(File.read("config.yaml"))
+  opts = Psych.load(File.read("config.yaml"))
+  my_args[:op]     = opts[:op]
 
   warn_real     = opts[:components] && older_than_config?("real")
   warn_real_op  = older_than_config?("real.#{opts[:op]}")
@@ -163,7 +165,7 @@ end
 namespace :permutation_test do
   desc "Plot the results of a permutation test"
   task :plot, [:n] => :environment do |task,args|
-    opts = YAML.load(File.read("config.yaml"))
+    opts = Psych.load(File.read("config.yaml"))
     args.with_defaults({:n => count_permutations})
     Boolean.say_with_time "Reading #{args[:n]} permutations" do
       Boolean.plot_permutation_test(args[:n].to_i, opts)
@@ -172,8 +174,8 @@ namespace :permutation_test do
 
 
   desc "Merge the results of parallel permutation tests"
-  task :merge do |task|
-    opts = YAML.load(File.read("config.yaml"))
+  task :merge => :environment do |task|
+    opts = Psych.load(File.read("config.yaml"))
     Boolean::merge_permutation_tests(opts[:op])
   end
 end

@@ -1,7 +1,7 @@
 require "benchmark"
 require "distribution"
 require "rbtree" # Use as an ordered hash
-require 'yaml'
+require "psych"
 
 require_relative "boolean/analysis.rb"
 require_relative "boolean/gpmatrix.rb"
@@ -11,6 +11,8 @@ require_relative "boolean/ortho_reader.rb"
 require_relative "boolean/dmatrix.rb"
 require_relative "boolean/plot.rb"
 require_relative "hypergeometric.rb"
+require_relative "rbtree_monkey.rb"
+require_relative "psych_monkey.rb"
 
 class Hash
   # File activesupport/lib/active_support/core_ext/hash/reverse_merge.rb, line 17
@@ -25,26 +27,6 @@ unless File.respond_to?(:write)
     def self.write filename, obj
       File.open(filename, 'w') do |f|
         f.write(obj.to_yaml)
-      end
-    end
-  end
-end
-
-# Modified from: http://markmail.org/message/ntlhxtacsqjh7rd4 (thanks to Why the lucky stiff!)
-# Ended up just basing it mostly on Hash though.
-class RBTree
-  YAML.add_ruby_type /RBTree/ do |type,val|
-    r = RBTree.new
-    val.each { |k,v| r[k] = v }
-    r
-  end
-
-  def to_yaml( opts = {} )
-    YAML::quick_emit( self, opts ) do |out|
-      out.map( taguri, to_yaml_style ) do |map|
-        each do |k,v|
-          map.add(k.to_s, v)
-        end
       end
     end
   end
@@ -107,7 +89,7 @@ module Boolean
       merged = RBTree.new { |h,k| h[k] = 0 }
       Dir::glob("#{file_prefix}.*").each do |filename|
         say_with_time "Merging file '#{filename}'" do
-          current = YAML::load(File.read(filename))
+          current = Psych::load(File.read(filename))
           current.each_pair do |pvalue, count|
             merged[pvalue] += count
           end
@@ -171,8 +153,14 @@ module Boolean
 
     def load_permutation_test(opts)
       suffix = opts[:op] ? "#{filename_friendly_op[opts[:op]]}.dist.yml" : "dist.yml"
-      [YAML::load(File.read("real.#{suffix}")),
-       YAML::load(File.read("random.#{suffix}"))]
+      [Psych::load(File.read("real.#{suffix}")),
+       Psych::load(File.read("random.#{suffix}"))]
+    end
+
+
+    def load_random_permutation_test(op=nil)
+      filename = op ? "random.#{Boolean::Analysis::filename_friendly_op(op)}.dist.yml" : "random.dist.yml"
+      Psych::load(File.read(filename))
     end
 
 

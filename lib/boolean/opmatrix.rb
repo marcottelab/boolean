@@ -29,7 +29,7 @@ module Boolean
     # Remember, after entering values in a non-random OPMatrix, you need to call #setup_skip_table!
     def initialize phenotype_count, orthogroup_count, storage_count
       # Make sure to provide storage_count + phenotype_count as the initial capacity, since otherwise a resize will be needed.
-      super([phenotype_count, orthogroup_count], storage_count+phenotype_count+1, stype: :yale, dtype: :byte)
+      super([phenotype_count, orthogroup_count], 0, capacity: storage_count+phenotype_count+1, stype: :yale, dtype: :byte)
       @skip_table = {}
     end
 

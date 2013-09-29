@@ -81,7 +81,7 @@ module Boolean
 
     def unitary_phenotype_description id, which=:from
       which = which == :from ? :from_gpm : :to_gpm
-      phenotype_identifier = self.send(which).phenotypes.select { |k,v| v == id }.keys[0]
+      phenotype_identifier = self.send(which).phenotype_ids[id]
       `grep '#{phenotype_identifier}\t' data/PhenotypeDescriptions.*`.rstrip.split("\t").last
     end
 
@@ -125,7 +125,7 @@ module Boolean
 
     # Display the phenotypes we find that might be good.
     def display_binned_nearest i, k: 1, cutoff: 0.0001
-      bins = binned_nearest(i,k,cutoff)
+      bins = binned_nearest(i, k: k, cutoff: cutoff)
       if bins.empty?
         puts "Nothing found for #{i} with k=#{k} and a cutoff of #{cutoff}"
         return nil
@@ -155,7 +155,9 @@ module Boolean
 
 
     # Helper function for filtering and displaying all of the likely phenologs.
-    def filter_and_display_all_binned_nearest k: 1, cutoff: 0.0001
+    def filter_and_display_all_binned_nearest k: 1, cutoff: 0.0001, op: nil
+      # random_dist = ::Boolean.load_random_permutation_test(op).normalize
+
       (0...to.shape[0]).each do |i|
         to_set   = to.orthogroups_for_phenotype(i)
         next if to_set.size < 3 # Skip for phenotypes that don't have at least 3 items
@@ -178,8 +180,22 @@ module Boolean
               str = nil
             end
 
+            # Calculate the candidate groups to display. Want to hash from INPARANOID ID to Entrez ID,
+            # which may be tricky since we've used so many mappings to coerce the data into the right
+            # format. There's a complete explanation in my lab notebook (9/29/13), which I may digitize.
+            candidate_groups = begin
+              candidate_set  = from_set - op_set
+              inparanoid_set = candidate_set.map { |oid| @reader.unrenumber[oid] }.sort.uniq
+              h = {}
+              inparanoid_set.each do |inp_oid|
+                h[inp_oid] = @to_gpm.o_to_g[inp_oid]
+              end
+              h
+            end
+
             # Display the set information.
             puts "  j=#{j}: ( #{to_set.size} | #{op_set.size} | #{from_set.size} )\tp=#{'%1.5E' % distances[i,j]}"
+            puts "  candidate orthogroups: #{candidate_groups.inspect}"
             # Display them.
             if self.op.nil?
               puts "   - #{unitary_phenotype_description(j, :from)}"
@@ -204,7 +220,6 @@ module Boolean
               binary_phenotype_descriptions(j).each.with_index do |desc,idx|
                 d1, d2 = unitary_distances[idx]
                 puts "   - #{desc} : #{'%1.2E' % d1} : #{'%1.2E' % d2}\t#{mark.call(d1)} : #{mark.call(d2)} "
-
               end
             else # No filtering -- just print them all.
               binary_phenotype_descriptions(j).each.with_index do |desc,idx|
