@@ -19,6 +19,7 @@ module Boolean
 
       @to_gpm    = Boolean.gp_matrix(*opts[:to])
       @to        = @to_gpm.opmatrix(@reader)
+      @to_species= opts[:to][1]
 
       @from_gpm   = Boolean.gp_matrix(*opts[:from])
       @from_opm   = from_gpm.opmatrix(@reader)
@@ -196,7 +197,9 @@ module Boolean
               # Now hash from INPARANOID orthogroup ID to Entrez gene ID
               h = {}
               inparanoid_set.each do |inp_oid|
-                h[inp_oid] = @reader.o_to_g[inp_oid]
+                entrez_ids = @reader.o_to_g[inp_oid]
+                # Only include the Entrez IDs from the species to be predicted.
+                h[inp_oid] = entrez_ids.select { |g| @reader.genes_by_species[@to_species].include?(g) }
               end
               h
             end

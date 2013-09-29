@@ -14,7 +14,7 @@ module Boolean
     end
 
 
-    attr_reader :g_to_o, :r_to_g, :renumber, :orthogroup_count
+    attr_reader :g_to_o, :r_to_g, :renumber, :orthogroup_count, :genes_by_species
 
     # Convert a (renumbered) gene ID (a GPMatrix index) to our renumbered orthogroup ID (an OPMatrix index)
     def orthogroup_id gid
@@ -48,11 +48,16 @@ module Boolean
     end
 
 
-
     # Create an OrthoReader for a pair of species (given by +species_ids+). Optionally, can supply the data directory as
     # second argument, which defaults to "data"
     def initialize species_ids, dir="data"
       @renumber = {} # map INPARANOID orthogroup IDs to renumbered oids
+
+      # Keep track of genes for each species in case we want to do predictions.
+      @genes_by_species = {
+          species_ids[0] => SortedSet.new,
+          species_ids[1] => SortedSet.new
+      }
 
       Dir.chdir(dir) do
         possible_filenames = ["sqltable.#{species_ids[0]}-#{species_ids[1]}", "sqltable.#{species_ids[1]}-#{species_ids[0]}"]
@@ -69,6 +74,9 @@ module Boolean
             line.chomp!
             orthogroup_id, score, sp, conf, isoform = line.split("\t")
             gene, num = isoform.split('-').map { |x| x.to_i }
+
+            # Note which gene comes from which species
+            @genes_by_species[sp] << gene
 
             # Don't need to assign new IDs to orthogroups since INPARANOID basically guarantees they'll be 0-counted without
             # skips.
