@@ -32,6 +32,7 @@ module Boolean
         @g_to_o.each_pair do |gene,orthogroup|
           h[orthogroup] << gene
         end
+        h
       end
     end
 
@@ -42,6 +43,7 @@ module Boolean
         @renumber.each_pair do |inparanoid_id, oid|
           h[oid] << inparanoid_id
         end
+        h
       end
     end
 

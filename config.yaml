@@ -3,10 +3,10 @@
 :n: 1000 # total number of permutations
 :with: :shuffle_rows # :shuffle_each_row
 :from: 
-- phenotypes.2.geisha
-- Gg
+- phenotypes.2.woods
+- Dr
 :to: 
 - phenotypes.2.mcgary
-- Mm
+- Hs
 :op: :&
 :components: true # also load/calculate the individual p-values of each phenotype for comparison to the boolean combinations

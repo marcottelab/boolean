@@ -155,7 +155,7 @@ module Boolean
 
 
     # Helper function for filtering and displaying all of the likely phenologs.
-    def filter_and_display_all_binned_nearest k: 1, cutoff: 0.0001, op: nil
+    def filter_and_display_all_binned_nearest k: 1, cutoff: 0.0001
       # random_dist = ::Boolean.load_random_permutation_test(op).normalize
 
       (0...to.shape[0]).each do |i|
@@ -185,10 +185,18 @@ module Boolean
             # format. There's a complete explanation in my lab notebook (9/29/13), which I may digitize.
             candidate_groups = begin
               candidate_set  = from_set - op_set
-              inparanoid_set = candidate_set.map { |oid| @reader.unrenumber[oid] }.sort.uniq
+
+              # There are multiple inparanoid orthogroups for each internal oid, sometimes.
+              # This happens because of orthogroups getting merged. So we need to get all
+              # of them and squish them together.
+              inparanoid_set = candidate_set.map do |oid|
+                @reader.unrenumber[oid]
+              end.flatten.sort.uniq
+
+              # Now hash from INPARANOID orthogroup ID to Entrez gene ID
               h = {}
               inparanoid_set.each do |inp_oid|
-                h[inp_oid] = @to_gpm.o_to_g[inp_oid]
+                h[inp_oid] = @reader.o_to_g[inp_oid]
               end
               h
             end
