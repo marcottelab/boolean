@@ -157,7 +157,7 @@ module Boolean
 
     # Helper function for filtering and displaying all of the likely phenologs.
     def filter_and_display_all_binned_nearest k: 1, cutoff: 0.0001
-      # random_dist = ::Boolean.load_random_permutation_test(op).normalize
+      #random_dist = ::Boolean.load_random_permutation_test(op).normalize
 
       (0...to.shape[0]).each do |i|
         to_set   = to.orthogroups_for_phenotype(i)
