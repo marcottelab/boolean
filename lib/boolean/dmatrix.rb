@@ -62,6 +62,22 @@ module Boolean
       x
     end
 
+    # Generate a p-value count RBTree (excluding Infinity and NaN).
+    # The result can easily be turned into a distribution using
+    #     x.normalize
+    def counts
+      c = RBTree.new { |h,k| h[k] = 0 }
+      self.each do |v|
+        next if v == Float::INFINITY || v == Float::NAN
+        c[v] += 1
+      end
+      c
+    end
+
+    def dist
+      counts.normalize
+    end
+
     class << self
       # Preferentially read a non-compressed file by this name, then a gzipped one.
       def read filename

@@ -106,7 +106,7 @@ module Boolean
 
     # Analyze the results of a permutation test. Only argument is +n+, the number of randomizations.
     # Writes to a matrix file called "counts". Returns the real matrix and the counts together.
-    def analyze_permutation_test(n, opts)
+    def analyze_permutation_test(opts)
       real_matrix = say_with_time "Reading 'real' matrix" do
         #`gunzip -c real.gz > real`
         x = DMatrix.read("real") # rows:to; columns:from
@@ -115,37 +115,8 @@ module Boolean
       end
 
       # Track the distributions by p-value
-      real_dist   = RBTree.new   { |h,k| h[k] = 0 }
-      random_dist = RBTree.new   { |h,k| h[k] = 0 }
-
-      real_matrix.each do |v|
-        real_dist[v]  += 1
-      end
-
-      # Remove skipped values from the distribution.
-      real_dist.delete(Float::INFINITY)
-
-      op_piece = Boolean::Analysis::filename_friendly_op(opts[:op]) if opts[:op]
-
-      #counts = NMatrix.new(:dense, [real.shape[0], real.shape[1]], 0, :int16)
-
-      (0...n).each do |t|
-        say_with_time "Analyzing (#{t}/#{n})" do
-          filename = opts[:op] ? "random.#{op_piece}.#{t}" : "random.#{t}"
-          STDERR.puts "\tReading '#{filename}' matrix"
-          random_matrix = DMatrix.read(filename)
-          STDERR.puts "\tUpdating counts..."
-          random_matrix.each do |v|
-            random_dist[v] += 1
-          end
-        end
-      end
-
-      say_with_time "Writing distributions to files" do
-        suffix = opts[:op] ? "#{op_piece}.dist.yml" : "dist.yml"
-        File.write("real.#{suffix}", real_dist.to_yaml)
-        File.write("random.#{suffix}", random_dist.to_yaml)
-      end
+      real_dist   = real_matrix.counts
+      random_dist = load_random_permutation_test(opts[:op])
 
       [real_dist, random_dist]
     end
@@ -164,16 +135,8 @@ module Boolean
     end
 
 
-    def plot_permutation_test(*args, opts)
-      real = nil
-      ran = nil
-
-      if args.size > 1
-        real = args.shift
-        ran = args.shift
-      else
-        real, ran = analyze_permutation_test(args.shift, opts)
-      end
+    def plot_permutation_test(opts)
+      real, ran = analyze_permutation_test(opts)
 
       return Boolean::Plot.fig_2b(real, ran)
     end
