@@ -38,6 +38,45 @@ module Boolean
         @components = read_or_create_components.call if opts[:components]
         @distances  = Boolean::Analysis.read_or_create_file(@to, @from, @op)
       end
+
+      stat_suffix = @op ? "#{Boolean::Analysis::filename_friendly_op(@op)}.stat.txt" : "stat.txt"
+      File.open("#{@to_species}-#{opts[:from][1]}.#{stat_suffix}", "w") do |f|
+        f.puts    "OrthoReader:"
+        f.puts    "  Entrez ID to inparanoid orthogroup mappings: #{@reader.g_to_o.size}"
+        f.puts    "    Unique inparanoid orthogroups: #{@reader.g_to_o.values.sort.uniq.size}"
+        f.puts    "  Unique renumbered orthogroups: #{@reader.orthogroup_count}"
+        f.puts    "  Inparanoid-observed genes by species:"
+
+        @reader.genes_by_species.each_pair do |sp,set|
+          f.puts  "    #{sp}: #{set.size}"
+        end
+
+        f.puts    "'To' gene-phenotype matrix:"
+        f.puts    "  phenotypes (rows): #{@to_gpm.shape[0]}"
+        f.puts    "  genes (columns): #{@to_gpm.shape[1]}"
+
+        f.puts    "'From' gene-phenotype matrix:"
+        f.puts    "  phenotypes (rows): #{@from_gpm.shape[0]}"
+        f.puts    "  genes (columns): #{@from_gpm.shape[1]}"
+
+        f.puts    "'To' orthogroup-phenotype matrix:"
+        f.puts    "  phenotypes (rows): #{@to.shape[0]}"
+        f.puts    "  orthogroups (columns): #{@to.shape[1]}"
+        f.puts    "  unique phenotypes (rows - skippables): #{@to.shape[0] - @to.count_skippables}"
+
+        f.puts    "'From' orthogroup-phenotype matrix:"
+        f.puts    "  phenotypes (rows): #{@from_opm.shape[0]}"
+        f.puts    "  orthogroups (columns): #{@from_opm.shape[1]}"
+        f.puts    "  unique phenotypes (rows - skippables): #{@from_opm.shape[0] - @from_opm.count_skippables}"
+
+        if @from.is_a?(BOPMatrix)
+          f.puts  "'From' boolean orthogroup-phenotype matrix:"
+          f.puts  "  unique phenotypes (rows): #{@from.shape[0]}"
+          f.puts  "  total combinations: #{@from.decipher.values.flatten.size}"
+          f.puts  "  orthogroups (columns): #{@from.shape[1]}"
+        end
+
+      end
     end
 
     def self.read_or_create_file(to, from, op)
