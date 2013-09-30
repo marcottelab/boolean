@@ -143,7 +143,6 @@ task :filtered_output, [:k,:cutoff] => :environment do |task,args|
   my_args[:cutoff] = args[:cutoff].to_f
 
   opts = Psych.load(File.read("config.yaml"))
-  my_args[:op]     = opts[:op]
 
   warn_real     = opts[:components] && older_than_config?("real")
   warn_real_op  = older_than_config?("real.#{opts[:op]}")
