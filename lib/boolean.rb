@@ -107,23 +107,28 @@ module Boolean
     # Analyze the results of a permutation test. Only argument is +n+, the number of randomizations.
     # Writes to a matrix file called "counts". Returns the real matrix and the counts together.
     def analyze_permutation_test(opts)
-      real_matrix = say_with_time "Reading 'real' matrix" do
-        #`gunzip -c real.gz > real`
-        x = DMatrix.read("real") # rows:to; columns:from
-        x
-        #`rm real`
-      end
-
-      # Track the distributions by p-value
-      real_dist   = real_matrix.counts
+      real_dist   = load_real_as_dist(opts)
       random_dist = load_random_permutation_test(opts[:op])
 
       [real_dist, random_dist]
     end
 
+    def load_real_as_dist(opts)
+      force = opts[:force]
+      suffix = opts[:op] ? ".#{Boolean::Analysis::filename_friendly_op(opts[:op])}" : ""
+      d = DMatrix.read("real#{suffix}", force)
+      return d.counts if d.respond_to?(:counts)
+      c = RBTree.new { |h,k| h[k] = 0 }
+      d.each do |v|
+        next if v == Float::INFINITY || v == Float::NAN
+        c[v] += 1
+      end
+      c
+    end
+
 
     def load_permutation_test(opts)
-      suffix = opts[:op] ? "#{filename_friendly_op[opts[:op]]}.dist.yml" : "dist.yml"
+      suffix = opts[:op] ? "#{Boolean::Analysis::filename_friendly_op(opts[:op])}.dist.yml" : "dist.yml"
       [Psych::load(File.read("real.#{suffix}")),
        Psych::load(File.read("random.#{suffix}"))]
     end
@@ -131,7 +136,9 @@ module Boolean
 
     def load_random_permutation_test(op=nil)
       filename = op ? "random.#{Boolean::Analysis::filename_friendly_op(op)}.dist.yml" : "random.dist.yml"
-      Psych::load(File.read(filename))
+      r = Psych::load(File.read(filename))
+      r.delete(Float::INFINITY)
+      r
     end
 
 

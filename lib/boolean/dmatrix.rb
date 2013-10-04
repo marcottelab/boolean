@@ -80,12 +80,12 @@ module Boolean
 
     class << self
       # Preferentially read a non-compressed file by this name, then a gzipped one.
-      def read filename
+      def read filename, force=nil
         if File.exists?(filename)
           super(filename)
         else
           `gunzip -c #{filename}.gz > #{filename}`
-          x = super(filename)
+          x = super(filename, force)
           `rm #{filename}`
           return x
         end
