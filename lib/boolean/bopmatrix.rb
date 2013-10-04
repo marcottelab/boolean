@@ -33,7 +33,7 @@ module Boolean
         opmatrix = args.shift
         operation = args.shift
         associations = []
-        @decipher = {} # convert from count to the boolean combination
+        @decipher = Hash.new { |h,k| h[k] = [] } # convert from count to the boolean combination
         count = 0
         matrix_size = 0
 
@@ -52,7 +52,6 @@ module Boolean
           comb.each do |pair|
             next if skippable_rows.include?(pair[0]) || skippable_rows.include?(pair[1])
 
-            @decipher[count] ||= []
             left        = opmatrix.orthogroups_for_phenotype(pair[0])
             right       = opmatrix.orthogroups_for_phenotype(pair[1])
 
