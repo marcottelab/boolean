@@ -86,7 +86,7 @@ module Boolean
             # Use the first-encountered orthogroup ID for both.
             if @g_to_o.has_key?(gene) && @g_to_o[gene] != orthogroup_id
               @renumber[orthogroup_id] = @renumber[@g_to_o[gene]]
-            else
+            elsif !@renumber.has_key?(orthogroup_id)
               @renumber[orthogroup_id] = count
               count += 1
             end

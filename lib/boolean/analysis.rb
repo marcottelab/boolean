@@ -209,7 +209,6 @@ module Boolean
 
         bins.each.with_index do |bin,rank|
           bin.each do |j|
-            binding.pry if j == 454
             from_set = from.orthogroups_for_phenotype(j)
             op_set   = to_set & from_set
             next if op_set.size < 2 || from_set.size == op_set.size
