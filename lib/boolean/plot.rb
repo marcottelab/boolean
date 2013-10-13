@@ -44,34 +44,20 @@ module Boolean
         log_min = 10**([(real_bins - [0.0]).min, (ran_bins - [0.0]).min].min.exponent-1)
 
         w = 500
-        h = 500
+        h = 400
         x = pv.Scale.linear(0, real_bins.size).range(0, w)
         y = pv.Scale.log(log_min, 1.0).range(0, h)
 
         vis = Rubyvis::Panel.new do
           width w
           height h
-          bottom 20
+          bottom 80
           left 60
-          right 50
+          right 20
           top 5
 
-          line do
-            data real_bins.reverse
-            left(lambda { x.scale(self.index) })
-            bottom(lambda { |d| d == 0 ? 0 : y.scale(d) })
-            stroke_style 'blue'
-          end
-
-          line do
-            data ran_bins.reverse
-            left(lambda { x.scale(self.index) })
-            bottom(lambda { |d| d == 0 ? 0 : y.scale(d) })
-            stroke_style 'red'
-            stroke_dasharray(3) if self.respond_to?(:stroke_dasharray)
-          end
-
           rule do
+            line_width 2
             data y.ticks
             bottom y
             visible(lambda { |d| d.to_s =~ /^1/ } )
@@ -79,11 +65,30 @@ module Boolean
             text(y.tick_format)
 
           rule do
-            data x.ticks
+            line_width 2
+            data( (0..(real_bins.size)).to_a)
             left x
             stroke_style(lambda { |d| d != 0 ? "#eee" : "#000" })
-          end.anchor('bottom').add(pv.Label).visible(lambda { |d| d.to_i == d && d.to_i % 5 == 0 }).
-              text(lambda { |d| d == 0 ? "[1,0.1)" : "[10^-#{d},10^-#{d+1})" })
+            visible(lambda { |d| d.to_i == d && d.to_i % 5 == 1 })
+          end.anchor('bottom').add(pv.Label).visible(lambda { |d| d.to_i == d && d.to_i % 5 == 1 }).
+              text(lambda { |d| d == 1 ? "[1,0.1)" : "[10^-#{d-1},10^-#{d})" }).text_angle(-Math::PI/2).text_align('right')
+
+          line do
+            data real_bins.reverse
+            line_width 3
+            left(lambda { x.scale(self.index) })
+            bottom(lambda { |d| d == 0 ? 0 : y.scale(d) })
+            stroke_style 'blue'
+          end
+
+          line do
+            data ran_bins.reverse
+            line_width 3
+            left(lambda { x.scale(self.index) })
+            bottom(lambda { |d| d == 0 ? 0 : y.scale(d) })
+            stroke_style 'red'
+            stroke_dasharray(3) #if self.respond_to?(:stroke_dasharray)
+          end
         end
 
         vis.render
