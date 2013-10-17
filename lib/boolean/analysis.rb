@@ -125,6 +125,14 @@ module Boolean
       `grep '#{phenotype_identifier}\t' data/PhenotypeDescriptions.*`.rstrip.split("\t").last
     end
 
+    def phenotype_description_grep str, which=:to
+      which = which == :from ? :from_gpm : :to_gpm
+      `grep '#{str}' data/PhenotypeDescriptions.*`.split("\n").map do |g|
+        phenotype_id = g.split("\t").first.split(':').last
+        self.send(which).phenotypes[phenotype_id]
+      end
+    end
+
     def binary_phenotype_descriptions id
       from.decipher[id].map do |combo|
         left = unitary_phenotype_description(combo.left, :from)
@@ -191,6 +199,50 @@ module Boolean
         end
       end
 
+    end
+
+
+    # For phenotype combination i (to) and j (from), display all gene sets by orthogroup -- candidates, known, and overlap.
+    def display_gene_sets i, j
+      to_set   = to.orthogroups_for_phenotype(i)
+      from_set = from.orthogroups_for_phenotype(j)
+      op_set   = to_set & from_set
+
+      hash_orthogroups_to_genes_for_set = Proc.new do |set|
+        # There are multiple inparanoid orthogroups for each internal oid, sometimes.
+        # This happens because of orthogroups getting merged. So we need to get all
+        # of them and squish them together.
+        inparanoid_set = set.map { |oid| @reader.unrenumber[oid] }.flatten.sort.uniq
+
+        h = {}
+        inparanoid_set.each do |inp_oid|
+          entrez_ids = @reader.o_to_g[inp_oid]
+          # Only include the Entrez IDs from the species to be predicted.
+          h[inp_oid] = entrez_ids.select { |g| @reader.genes_by_species[@to_species].include?(g) }
+        end
+        h
+      end
+
+      to_h      = hash_orthogroups_to_genes_for_set.call(to_set)
+      overlap_h = hash_orthogroups_to_genes_for_set.call(op_set)
+      from_h    = hash_orthogroups_to_genes_for_set.call(from_set)
+
+      puts "* #{unitary_phenotype_description(i, :to)}"
+      puts "  #{to_h}"
+
+      if from.is_a?(BOPMatrix)
+        binary_phenotype_descriptions(j).each do |desc|
+          puts "* #{desc}"
+        end
+      else
+        puts "* #{unitary_phenotype_description(j, :from)}"
+      end
+
+      puts "  #{from_h}"
+      puts "* overlap"
+      puts "  #{overlap_h}"
+
+      [to_h, overlap_h, from_h]
     end
 
 

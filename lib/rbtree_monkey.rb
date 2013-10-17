@@ -23,6 +23,24 @@ class RBTree
   end
 
 
+  # Iterate across every p-value in the tree (which isn't 1 or infinity) as if it
+  # weren't binned. That is, if 0.05 is in a bin of size 5, iterate across 0.05
+  # five times. Also yields a true-false value indicating if this is the last entry
+  # in the bin.
+  def each_relevant_pvalue
+    return enum_for(:each_relevant_pvalue) unless block_given?
+
+    self.each_pair do |p, bin_size|
+      next if p >= 1.0
+      bin_size.times do |bin_idx|
+        yield(p, bin_idx+1 == bin_size)
+      end
+    end
+
+    self
+  end
+
+
   def fdr pvalue
     self.lower_bound(pvalue)[1]
   end
