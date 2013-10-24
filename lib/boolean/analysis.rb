@@ -2,7 +2,7 @@ module Boolean
   class Analysis
 
     def inspect #:nodoc:
-      ["#<Boolean::OrthoReader:0x00#{(self.object_id << 1).to_s(16)}", "@to @to_gpm @from @from_gpm", "distances=#{@distances.inspect}", "op=:#{@op.to_s}", "reader=#{@reader.inspect}"].join(' ') + " >"
+      ["#<Boolean::Analysis:0x00#{(self.object_id << 1).to_s(16)}", "@to @to_gpm @from @from_gpm", "distances=#{@distances.inspect}", "op=:#{@op.to_s}", "reader=#{@reader.inspect}"].join(' ') + " >"
     end
 
 
