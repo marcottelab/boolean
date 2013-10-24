@@ -87,7 +87,7 @@ module Boolean
       # Note that this could be done more efficiently with GPMatrix#genes_for_phenotype and #NMatrix#__yale_vector__set.
       # But it's going quickly enough relative to other operations that we'll just leave it here for now.
       self.each_stored_with_indices do |val,pid,gid|
-        next if val == 0
+        next if val == self.default_value
         orthogroup_id = reader.orthogroup_id( inverted_genes[gid] )  # returns the renumbered orthogroup ID
         next if orthogroup_id.nil? # many genes won't exist in other species; skip these.
         opm[pid, orthogroup_id] = val
