@@ -48,6 +48,20 @@ module Boolean
       @skip_table.values.select { |a| a.is_a?(Array) }.flatten
     end
 
+    # Find all phenotype IDs which collapsed into this one phenotype ID.
+    def equivalent_phenotype_ids id
+      if @skip_table.has_key?(id)
+        skip_ids = @skip_table[id]
+        if skip_ids.is_a?(Array)
+          skip_ids + [id]
+        else
+          [skip_ids, id]
+        end
+      else
+        [id]
+      end
+    end
+
     # Determine the number of skippable rows in the matrix. This will be used for construction of the
     # shuffled matrix.
     def count_skippables

@@ -120,9 +120,14 @@ module Boolean
     end
 
     def unitary_phenotype_description id, which=:from
-      which = which == :from ? :from_gpm : :to_gpm
-      phenotype_identifier = self.send(which).phenotype_ids[id]
-      `grep '#{phenotype_identifier}\t' data/PhenotypeDescriptions.*`.rstrip.split("\t").last
+      which_gpm = which == :from ? :from_gpm : :to_gpm
+      which_opm = which == :from ? :from_opm : :to
+      phenotype_identifiers = self.send(which_opm).equivalent_phenotype_ids(id).map do |eq_id|
+        self.send(which_gpm).phenotype_ids[eq_id]
+      end
+      phenotype_identifiers.map do |external_identifier|
+        `grep '#{external_identifier}\t' data/PhenotypeDescriptions.*`.rstrip.split("\t").last
+      end.join('[=]')
     end
 
     def phenotype_description_grep str, which=:to
